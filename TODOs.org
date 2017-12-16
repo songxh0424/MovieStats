@@ -1,0 +1,15 @@
+[[https://shiny.rstudio.com/gallery/movie-explorer.html][Reference]]
+* UI
+** Sidebar as filter menu
+*** TODO Slider: select time window for movies to include
+*** TODO Dropdown menu: select genres
+*** TODO Slider: select threshold for the minimum amount of reviews
+*** TODO Slider: threshold for the top n actors to include in each film
+** Sidebar as page menu
+*** TODO Item 1: main page
+*** TODO Item 2: statistics and rankings
+*** TODO Item 3: director pages
+*** TODO Item 4: actor pages
+** Title bar
+*** TODO Github repo
+*** TODO About
