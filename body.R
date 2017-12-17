@@ -1,4 +1,4 @@
-genres = c('Action', 'Adventure', 'Animation', "Children's", 'Comedy', 'Crime', 'Documentary',
+genres = c('Action', 'Adventure', 'Animation', 'Children', 'Comedy', 'Crime', 'Documentary',
            'Drama', 'Fantasy', 'Film-Noir', 'Horror', 'Musical', 'Mystery', 'Romance', 'Sci-Fi',
            'Thriller', 'War', 'Western')
 
@@ -19,7 +19,9 @@ dbBody = dashboardBody(
         tabItem(
           tabName = 'stats',
           fluidRow(
-            column(width = 10, offset = 1, align = 'center', h2('Statistics and Rankings')),
+            ## title
+            column(width = 10, offset = 1, align = 'center', h2('Statistics and Rankings'), tags$br()),
+            ## filtering criteria
             column(
               width = 3,
               box(title = 'Year released', status = 'primary', solidHeader = T, width = NULL,
@@ -36,8 +38,13 @@ dbBody = dashboardBody(
                   ),
               box(title = 'Genres', status = 'primary', solidHeader = T, width = NULL,
                   checkboxGroupInput(inputId = 'genre', label = NULL,
-                                     choices = genres, selected = genres)
+                                     choices = genres, selected = genres),
+                  actionButton(inputId = 'checkAll', label = 'Check all'),
+                  actionButton(inputId = 'uncheckAll', label = 'Uncheck all')
                   )
+            ),
+            column(
+              width = 9
             )
           )
         )
