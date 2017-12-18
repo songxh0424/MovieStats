@@ -1,5 +1,5 @@
 [[https://shiny.rstudio.com/gallery/movie-explorer.html][Reference]]
-* UI
+* Sidebar and Title Bar
 ** Sidebar as filter menu
 *** DONE Slider: select time window for movies to include
 *** DONE Dropdown menu: select genres
@@ -11,5 +11,22 @@
 *** DONE Item 3: director pages
 *** DONE Item 4: actor pages
 ** Title bar
-*** TODO Github repo
-*** TODO About
+*** DONE IMDb link
+*** DONE Github repo
+*** TODO About: maybe put on main page instead
+* Pages
+** Main page
+** Statistics and rankings
+*** DONE Tab 1: Visualizations
+*** TODO Tab 2: Rankings
+**** TODO Top actors
+**** TODO Top directors
+**** TODO Top director-actor duo
+**** TODO Top actor duo
+**** TODO Possibly: Top writers
+** Director page
+*** TODO Tab 1: Basic information; movies directed
+*** TODO Tab 2: Statistics and plots: Yearly trend, scatter of movies, most co-oped actors
+** Director page
+*** TODO Tab 1: Basic information; movies played 
+*** TODO Tab 2: Statistics and plots: Yearly trend, scatter of movies, most co-oped actors/directors
