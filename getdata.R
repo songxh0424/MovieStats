@@ -28,3 +28,41 @@ if(!file.exists('apiData.RData')) {
 } else {
   load('apiData.RData')
 }
+
+## transform data
+apiData = apiData[!sapply(apiData, is.null)]
+## filter out tvs
+apiData = apiData[!sapply(apiData, function(x) 'Season' %in% names(x))]
+ratings = lapply(apiData, function(x) {
+  x$Ratings = x$Ratings$Value[2] %>% str_replace('%', '')
+  if(length(x$Ratings) == 0) x$Ratings = NA
+  tmp = as.data.frame(x) %>% rename(rtRating = Ratings)
+  return(tmp)
+}) %>% bind_rows()
+ratings = ratings %>% filter(Type == 'movie')
+ratings[ratings == 'N/A'] = NA
+num = . %>% str_replace_all(',', '') %>% as.numeric()
+ratings = ratings %>%
+  mutate(rtRating = num(rtRating), imdbRating = num(imdbRating) * 10,
+         Metascore = num(Metascore), imdbVotes = num(imdbVotes), Year = num(Year)) %>%
+  select(-c(Type, Response:totalSeasons)) %>%
+  rename(Tomatometer = rtRating, `IMDb Rating` = imdbRating)
+
+## right now this is using the genres from OMDB API,
+## might consider switch to MovieLens genre data later
+genres = lapply(1:nrow(ratings), function(i) {
+  gens = str_split(ratings$Genre[i], ',')[[1]] %>% str_trim()
+  data.frame(imdbID = rep(ratings$imdbID[i], length(gens)), Genre = gens)
+}) %>% bind_rows()
+movies.all = ratings %>% select(-Genre) %>% right_join(genres, by = 'imdbID')
+
+## genres using MovieLens data
+genres = lapply(1:nrow(movieGenres), function(i) {
+  gens = str_split(movieGenres$genres[i], '\\|')[[1]] %>% str_trim()
+  data.frame(movieId = rep(movieGenres$movieId[i], length(gens)), Genre = gens)
+}) %>% bind_rows()
+movies.all = ratings %>% select(-Genre) %>%
+  inner_join(movies %>% mutate(imdbId = paste0('tt', imdbId)), by = c('imdbID' = 'imdbId')) %>%
+  inner_join(genres, by = 'movieId')
+
+save(movies.all, file = 'movies.all.RData')

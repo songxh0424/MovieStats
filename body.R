@@ -1,6 +1,6 @@
 genres = c('Action', 'Adventure', 'Animation', 'Children', 'Comedy', 'Crime', 'Documentary',
            'Drama', 'Fantasy', 'Film-Noir', 'Horror', 'Musical', 'Mystery', 'Romance', 'Sci-Fi',
-           'Thriller', 'War', 'Western')
+           'Thriller', 'War', 'Western', 'IMAX', '(no genres listed)')
 
 dbBody = dashboardBody(
   fluidRow(
@@ -43,8 +43,57 @@ dbBody = dashboardBody(
                   actionButton(inputId = 'uncheckAll', label = 'Uncheck all')
                   )
             ),
+            ## results area
             column(
-              width = 9
+              width = 9, align = 'center',
+              tabBox(
+                title = 'Visualizations and Rankings', width = NULL,
+                ## plotting area
+                tabPanel(
+                  title = 'Visualizations',
+                  fluidRow(
+                    column(
+                      width = 12, offset = 0, align = 'center',
+                      ## yearly trend
+                      box(title = 'Yearly Average Rating', status = 'success', width = NULL, solidHeader = T,
+                        tabBox(
+                          title = NULL, width = NULL,
+                          tabPanel(
+                            title = 'IMDb Rating',
+                            plotlyOutput(outputId = 'trend_imdb')
+                          ),
+                          tabPanel(
+                            title = 'Metascore',
+                            plotlyOutput(outputId = 'trend_meta')
+                          ),
+                          tabPanel(
+                            title = 'Tomatometer',
+                            plotlyOutput(outputId = 'trend_rt')
+                          )
+                        )
+                      ),
+                      ## boxplot by genre
+                      box(title = 'Distribution of Ratings by Genre', status = 'success', width = NULL, solidHeader = T,
+                        tabBox(
+                          title = NULL, width = NULL,
+                          tabPanel(
+                            title = 'IMDb Rating',
+                            plotlyOutput(outputId = 'box_imdb', height = 500)
+                          ),
+                          tabPanel(
+                            title = 'Metascore',
+                            plotlyOutput(outputId = 'box_meta', height = 500)
+                          ),
+                          tabPanel(
+                            title = 'Tomatometer',
+                            plotlyOutput(outputId = 'box_rt', height = 500)
+                          )
+                        )
+                      )
+                    )
+                  )
+                )
+              )
             )
           )
         )
