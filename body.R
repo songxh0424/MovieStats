@@ -1,7 +1,3 @@
-genres = c('Action', 'Adventure', 'Animation', 'Children', 'Comedy', 'Crime', 'Documentary',
-           'Drama', 'Fantasy', 'Film-Noir', 'Horror', 'Musical', 'Mystery', 'Romance', 'Sci-Fi',
-           'Thriller', 'War', 'Western', 'IMAX', '(no genres listed)')
-
 dbBody = dashboardBody(
   fluidRow(
     column(
@@ -94,6 +90,15 @@ dbBody = dashboardBody(
                   )
                 )
               )
+            )
+          )
+        ),
+        tabItem(
+          title = 'director',
+          fluidRow(
+            column(
+              width = 10, offset = 1,
+              box()
             )
           )
         )
