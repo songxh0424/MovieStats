@@ -1,3 +1,6 @@
+################################################################################
+## Functions
+################################################################################
 ## plotting and theming functions
 theme_Publication <- function(base_size=10, legend.pos = "bottom") {
       (theme_foundation(base_size=base_size)
@@ -57,3 +60,26 @@ box_genre = function(dat) {
     geom_boxplot() + ggtitle('Ratings by Genre') + ylim(c(0, 100))
   (plot_custom(p, legend.pos = 'none') + theme(axis.text.x = element_text(angle = 90, hjust = 1))) %>% ggplotly()
 }
+
+
+################################################################################
+## Global variables
+################################################################################
+library(shiny)
+library(shinydashboard)
+library(ggplot2)
+library(ggthemes)
+library(dplyr)
+library(tidyr)
+library(plotly)
+library(stringr)
+load('./movies.all.RData')
+directors = movies.all$Director %>% unique()
+actors = movies.all$Actors %>% str_split(',') %>% unlist() %>% str_trim() %>% unique()
+genres = c('Action', 'Adventure', 'Animation', 'Children', 'Comedy', 'Crime', 'Documentary',
+           'Drama', 'Fantasy', 'Film-Noir', 'Horror', 'Musical', 'Mystery', 'Romance', 'Sci-Fi',
+           'Thriller', 'War', 'Western', 'IMAX', '(no genres listed)')
+source('header.R')
+source('sidebar.R')
+source('body.R')
+
