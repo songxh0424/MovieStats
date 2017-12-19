@@ -51,7 +51,8 @@ dbBody = dashboardBody(
                     column(
                       width = 12, offset = 0, align = 'center',
                       ## yearly trend
-                      box(title = 'Yearly Average Rating', status = 'success', width = NULL, solidHeader = T,
+                      box(title = 'Yearly Average Rating', status = 'success', width = NULL,
+                          solidHeader = TRUE, collapsible = TRUE,
                         tabBox(
                           title = NULL, width = NULL,
                           tabPanel(
@@ -69,7 +70,8 @@ dbBody = dashboardBody(
                         )
                       ),
                       ## boxplot by genre
-                      box(title = 'Distribution of Ratings by Genre', status = 'success', width = NULL, solidHeader = T,
+                      box(title = 'Distribution of Ratings by Genre', status = 'success', width = NULL,
+                          solidHeader = TRUE, collapsible = TRUE,
                         tabBox(
                           title = NULL, width = NULL,
                           tabPanel(
@@ -94,11 +96,40 @@ dbBody = dashboardBody(
           )
         ),
         tabItem(
-          title = 'director',
+          tabName = 'director',
           fluidRow(
+            column(width = 10, offset = 1, align = 'center', h2('Director Insights'), tags$br()),
             column(
               width = 10, offset = 1,
-              box()
+              box(title = 'General Information', status = 'success', width = NULL,
+                  collapsible = TRUE, solidHeader = TRUE,
+                  column(width = 4, img(src = 'emptyPortrait.png')),
+                  column(width = 4, htmlOutput(outputId = 'director_info')),
+                  column(width = 4, valueBoxOutput(outputId = 'oscar_d', width = NULL),
+                         valueBoxOutput(outputId = 'golden_globe_d', width = NULL))
+                  ),
+              box(title = 'Statistics', status = 'success', width = NULL,
+                  collapsible = TRUE, solidHeader = TRUE
+                  )
+            )
+          )
+        ),
+        tabItem(
+          tabName = 'actor',
+          fluidRow(
+            column(width = 10, offset = 1, align = 'center', h2('Actor Insights'), tags$br()),
+            column(
+              width = 10, offset = 1,
+              box(title = 'General Information', status = 'success', width = NULL,
+                  collapsible = TRUE, solidHeader = TRUE,
+                  column(width = 4, img(src = 'emptyPortrait.png')),
+                  column(width = 4, htmlOutput(outputId = 'actor_info')),
+                  column(width = 4, valueBoxOutput(outputId = 'oscar_a', width = NULL),
+                         valueBoxOutput(outputId = 'golden_globe_a', width = NULL))
+                  ),
+              box(title = 'Statistics', status = 'success', width = NULL,
+                  collapsible = TRUE, solidHeader = TRUE
+                  )
             )
           )
         )

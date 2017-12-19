@@ -76,6 +76,7 @@ library(stringr)
 load('./movies.all.RData')
 directors = movies.all$Director %>% unique()
 actors = movies.all$Actors %>% str_split(',') %>% unlist() %>% str_trim() %>% unique()
+actors = actors[1:10000]
 genres = c('Action', 'Adventure', 'Animation', 'Children', 'Comedy', 'Crime', 'Documentary',
            'Drama', 'Fantasy', 'Film-Noir', 'Horror', 'Musical', 'Mystery', 'Romance', 'Sci-Fi',
            'Thriller', 'War', 'Western', 'IMAX', '(no genres listed)')
