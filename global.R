@@ -61,6 +61,20 @@ box_genre = function(dat) {
   (plot_custom(p, legend.pos = 'none') + theme(axis.text.x = element_text(angle = 90, hjust = 1))) %>% ggplotly()
 }
 
+## data tables for rankings
+ranking = function(dat, type = c('dir', 'act', 'duo'), thres) {
+  tmp = match.arg(type, c('dir', 'act', 'duo'))
+  dat = dat %>% filter(Movies >= thres) %>% arrange(desc(Ratings))
+  dat = switch(tmp,
+               'dir' = dat %>% select(Director, Movies, Ratings),
+               'act' = dat %>% select(Actor, Movies, Ratings),
+               'duo' = dat %>% select(Director, Actor, Movies, Ratings)
+               )
+  datatable(dat %>% filter(row_number() <= 100),
+            class = 'cell-border stripe', options = list(pageLength = 10), filter = "top")
+}
+
+
 
 ################################################################################
 ## Global variables
@@ -75,9 +89,9 @@ library(plotly)
 library(stringr)
 library(DT)
 load('./movies.all.RData')
-directors = movies.all$Director %>% unique()
-actors = movies.all$Actors %>% str_split(',') %>% unlist() %>% str_trim() %>% unique()
-actors = actors[1:10000]
+dirs = directors$Director %>% unique()
+acts = actors$Actor %>% unique()
+acts = acts[1:10000]
 genres = c('Action', 'Adventure', 'Animation', 'Children', 'Comedy', 'Crime', 'Documentary',
            'Drama', 'Fantasy', 'Film-Noir', 'Horror', 'Musical', 'Mystery', 'Romance', 'Sci-Fi',
            'Thriller', 'War', 'Western', 'IMAX', '(no genres listed)')

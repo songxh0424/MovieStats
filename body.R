@@ -24,13 +24,19 @@ dbBody = dashboardBody(
                   sliderInput(inputId = 'year', label = NULL, min = 1900, max = 2017,
                               value = c(1970, 2017))
                   ),
-              box(title = 'Minimum reviews', status = 'primary', solidHeader = T, width = NULL,
-                  sliderInput(inputId = 'minReview', label = NULL, min = 0, max = 300,
-                              value = c(0, 300))
+              ## need review count data for this filer
+              ## box(title = 'Minimum reviews', status = 'primary', solidHeader = T, width = NULL,
+              ##     sliderInput(inputId = 'minReview', label = NULL, min = 0, max = 300,
+              ##                 value = c(0, 300))
+              ##     ),
+              box(title = 'Minimum number of movies - director', status = 'primary', solidHeader = T, width = NULL,
+                  sliderInput(inputId = 'min_movies_dir', label = NULL, min = 1, max = 8, value = 3)
+                  ),
+              box(title = 'Minimum number of movies - actor', status = 'primary', solidHeader = T, width = NULL,
+                  sliderInput(inputId = 'min_movies_act', label = NULL, min = 1, max = 15, value = 8)
                   ),
               box(title = 'First n actors in credits', status = 'primary', solidHeader = T, width = NULL,
-                  sliderInput(inputId = 'first_n_actors', label = NULL, min = 1, max = 20,
-                              value = 10)
+                  sliderInput(inputId = 'first_n_actors', label = NULL, min = 1, max = 20, value = 10)
                   ),
               box(title = 'Genres', status = 'primary', solidHeader = T, width = NULL,
                   checkboxGroupInput(inputId = 'genre', label = NULL,
@@ -80,23 +86,23 @@ dbBody = dashboardBody(
                     column(
                       width = 12, offset = 0, align = 'center',
                       box(
-                        title = 'Top Actors by Average Rating', status = 'success', width = NULL,
-                        solidHeader = TRUE, collapsible = TRUE,
-                        tabBox(
-                          title = NULL, width = NULL,
-                          tabPanel(title = 'IMDb Rating', dataTableOutput(outputId = 'top_actor_imdb')),
-                          tabPanel(title = 'Metascore', dataTableOutput(outputId = 'top_actor_meta')),
-                          tabPanel(title = 'Tomatometer', dataTableOutput(outputId = 'top_actor_rt'))
-                        )
-                      ),
-                      box(
                         title = 'Top Directors by Average Rating', status = 'success', width = NULL,
                         solidHeader = TRUE, collapsible = TRUE,
                         tabBox(
                           title = NULL, width = NULL,
-                          tabPanel(title = 'IMDb Rating', dataTableOutput(outputId = 'top_direct_imdb')),
-                          tabPanel(title = 'Metascore', dataTableOutput(outputId = 'top_direct_meta')),
-                          tabPanel(title = 'Tomatometer', dataTableOutput(outputId = 'top_direct_rt'))
+                          tabPanel(title = 'IMDb Rating', dataTableOutput(outputId = 'top_dir_imdb')),
+                          tabPanel(title = 'Metascore', dataTableOutput(outputId = 'top_dir_meta')),
+                          tabPanel(title = 'Tomatometer', dataTableOutput(outputId = 'top_dir_rt'))
+                        )
+                      ),
+                      box(
+                        title = 'Top Actors by Average Rating', status = 'success', width = NULL,
+                        solidHeader = TRUE, collapsible = TRUE,
+                        tabBox(
+                          title = NULL, width = NULL,
+                          tabPanel(title = 'IMDb Rating', dataTableOutput(outputId = 'top_act_imdb')),
+                          tabPanel(title = 'Metascore', dataTableOutput(outputId = 'top_act_meta')),
+                          tabPanel(title = 'Tomatometer', dataTableOutput(outputId = 'top_act_rt'))
                         )
                       ),
                       box(

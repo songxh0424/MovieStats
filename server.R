@@ -1,6 +1,6 @@
-load('./movies.all.RData')
-ggdat.ratings = movies.all %>%
-  gather(key = Source, value = Ratings, Metascore, `IMDb Rating`, Tomatometer)
+## wide to long is not necessary given the current layout
+## ggdat.ratings = movies.all %>%
+##   gather(key = Source, value = Ratings, Metascore, `IMDb Rating`, Tomatometer)
 
 function(input, output, session) {
   ## update the genre selection on stats page
@@ -16,35 +16,82 @@ function(input, output, session) {
   )
 
   ## plots on stats page
-  ggdat.ratings.react = reactive({
-    ggdat.ratings %>% filter(Year >= input$year[1] & Year <= input$year[2]) %>%
+  ggdat.ratings = reactive({
+    movies.all %>% filter(Year >= input$year[1] & Year <= input$year[2]) %>%
       filter(Genre %in% input$genre)
+  })
+  ggdat.trend = reactive({
+    movies.all %>% filter(Year >= input$year[1] & Year <= input$year[2]) %>%
+      filter(Genre %in% input$genre) %>% group_by(imdbID) %>%
+      filter(row_number() == 1) %>% group_by(Year) %>%
+      summarise(`IMDb Rating` = mean(`IMDb Rating`, na.rm = TRUE),
+                Metascore = mean(Metascore, na.rm = T), Tomatometer = mean(Tomatometer, na.rm = T))
   })
   ## yearly trends plots
   ## need to figure out how to put ggdat.trend outside the render functions
   output$trend_imdb = renderPlotly({
-    ggdat.trend = ggdat.ratings.react() %>% group_by(Source, Year) %>%
-      summarise(Ratings = mean(Ratings, na.rm = TRUE))
-    year_trend(ggdat.trend %>% filter(Source == 'IMDb Rating'))
+    year_trend(ggdat.trend() %>% rename(Ratings = `IMDb Rating`))
   })
   output$trend_meta = renderPlotly({
-    ggdat.trend = ggdat.ratings.react() %>% group_by(Source, Year) %>%
-      summarise(Ratings = mean(Ratings, na.rm = TRUE))
-    year_trend(ggdat.trend %>% filter(Source == 'Metascore'))
+    year_trend(ggdat.trend() %>% rename(Ratings = Metascore))
   })
   output$trend_rt = renderPlotly({
-    ggdat.trend = ggdat.ratings.react() %>% group_by(Source, Year) %>%
-      summarise(Ratings = mean(Ratings, na.rm = TRUE))
-    year_trend(ggdat.trend %>% filter(Source == 'Tomatometer'))
+    year_trend(ggdat.trend() %>% rename(Ratings = Tomatometer))
   })
   ## boxplot of ratings by genre
   output$box_imdb = renderPlotly({
-    box_genre(ggdat.ratings.react() %>% filter(Source == 'IMDb Rating'))
+    box_genre(ggdat.ratings() %>% rename(Ratings = `IMDb Rating`))
   })
   output$box_meta = renderPlotly({
-    box_genre(ggdat.ratings.react() %>% filter(Source == 'Metascore'))
+    box_genre(ggdat.ratings() %>% rename(Ratings = Metascore))
   })
   output$box_rt = renderPlotly({
-    box_genre(ggdat.ratings.react() %>% filter(Source == 'Tomatometer'))
+    box_genre(ggdat.ratings() %>% rename(Ratings = Tomatometer))
+  })
+
+  ## ranking tables
+  ## top directors
+  dat.directors = reactive({
+    movies.all %>% filter(Year >= input$year[1] & Year <= input$year[2]) %>%
+      filter(Genre %in% input$genre) %>% group_by(imdbID) %>%
+      filter(row_number() == 1) %>% select(-Director) %>%
+      inner_join(directors, by = 'imdbID') %>% group_by(Director) %>%
+      summarise(Movies = n(), `IMDb Rating` = mean(`IMDb Rating`, na.rm = TRUE) %>% round(2),
+                Metascore = mean(Metascore, na.rm = T) %>% round(2),
+                Tomatometer = mean(Tomatometer, na.rm = T) %>% round(2))
+  })
+  output$top_dir_imdb = renderDataTable({
+    dat = dat.directors() %>% rename(Ratings = `IMDb Rating`)
+    ranking(dat, 'dir', input$min_movies_dir)
+  })
+  output$top_dir_meta = renderDataTable({
+    dat = dat.directors() %>% rename(Ratings = Metascore)
+    ranking(dat, 'dir', input$min_movies_dir)
+  })
+  output$top_dir_rt = renderDataTable({
+    dat = dat.directors() %>% rename(Ratings = Tomatometer)
+    ranking(dat, 'dir', input$min_movies_dir)
+  })
+  ## top actors 
+  dat.actors = reactive({
+    movies.all %>% filter(Year >= input$year[1] & Year <= input$year[2]) %>%
+      filter(Genre %in% input$genre) %>% group_by(imdbID) %>%
+      filter(row_number() == 1) %>% select(-Actors) %>%
+      inner_join(actors, by = 'imdbID') %>% group_by(Actor) %>%
+      summarise(Movies = n(), `IMDb Rating` = mean(`IMDb Rating`, na.rm = TRUE) %>% round(2),
+                Metascore = mean(Metascore, na.rm = T) %>% round(2),
+                Tomatometer = mean(Tomatometer, na.rm = T) %>% round(2))
+  })
+  output$top_act_imdb = renderDataTable({
+    dat = dat.actors() %>% rename(Ratings = `IMDb Rating`)
+    ranking(dat, 'act', input$min_movies_act)
+  })
+  output$top_act_meta = renderDataTable({
+    dat = dat.actors() %>% rename(Ratings = Metascore)
+    ranking(dat, 'act', input$min_movies_act)
+  })
+  output$top_act_rt = renderDataTable({
+    dat = dat.actors() %>% rename(Ratings = Tomatometer)
+    ranking(dat, 'act', input$min_movies_act)
   })
 }
