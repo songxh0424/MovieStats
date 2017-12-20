@@ -30,10 +30,10 @@ dbBody = dashboardBody(
               ##                 value = c(0, 300))
               ##     ),
               box(title = 'Minimum number of movies - director', status = 'primary', solidHeader = T, width = NULL,
-                  sliderInput(inputId = 'min_movies_dir', label = NULL, min = 1, max = 8, value = 3)
+                  sliderInput(inputId = 'min_movies_dir', label = NULL, min = 1, max = 15, value = 8)
                   ),
               box(title = 'Minimum number of movies - actor', status = 'primary', solidHeader = T, width = NULL,
-                  sliderInput(inputId = 'min_movies_act', label = NULL, min = 1, max = 15, value = 8)
+                  sliderInput(inputId = 'min_movies_act', label = NULL, min = 1, max = 20, value = 10)
                   ),
               box(title = 'First n actors in credits', status = 'primary', solidHeader = T, width = NULL,
                   sliderInput(inputId = 'first_n_actors', label = NULL, min = 1, max = 20, value = 10)
