@@ -18,9 +18,10 @@
 ** Main page
 ** Statistics and rankings
 *** DONE Tab 1: Visualizations
+**** TODO Add number of movies in each year to the tooltips of trend plot
 *** TODO Tab 2: Rankings
-**** TODO Top actors
-**** TODO Top directors
+**** DONE Top actors
+**** DONE Top directors
 **** TODO Top director-actor duo
 **** TODO Top actor duo
 **** TODO Possibly: Top writers
