@@ -55,18 +55,9 @@ dbBody = dashboardBody(
                           solidHeader = TRUE, collapsible = TRUE,
                         tabBox(
                           title = NULL, width = NULL,
-                          tabPanel(
-                            title = 'IMDb Rating',
-                            plotlyOutput(outputId = 'trend_imdb')
-                          ),
-                          tabPanel(
-                            title = 'Metascore',
-                            plotlyOutput(outputId = 'trend_meta')
-                          ),
-                          tabPanel(
-                            title = 'Tomatometer',
-                            plotlyOutput(outputId = 'trend_rt')
-                          )
+                          tabPanel(title = 'IMDb Rating', plotlyOutput(outputId = 'trend_imdb')),
+                          tabPanel(title = 'Metascore', plotlyOutput(outputId = 'trend_meta')),
+                          tabPanel(title = 'Tomatometer', plotlyOutput(outputId = 'trend_rt'))
                         )
                       ),
                       ## boxplot by genre
@@ -74,18 +65,48 @@ dbBody = dashboardBody(
                           solidHeader = TRUE, collapsible = TRUE,
                         tabBox(
                           title = NULL, width = NULL,
-                          tabPanel(
-                            title = 'IMDb Rating',
-                            plotlyOutput(outputId = 'box_imdb', height = 500)
-                          ),
-                          tabPanel(
-                            title = 'Metascore',
-                            plotlyOutput(outputId = 'box_meta', height = 500)
-                          ),
-                          tabPanel(
-                            title = 'Tomatometer',
-                            plotlyOutput(outputId = 'box_rt', height = 500)
-                          )
+                          tabPanel(title = 'IMDb Rating', plotlyOutput(outputId = 'box_imdb', height = 500)),
+                          tabPanel(title = 'Metascore', plotlyOutput(outputId = 'box_meta', height = 500)),
+                          tabPanel(title = 'Tomatometer', plotlyOutput(outputId = 'box_rt', height = 500))
+                        )
+                      )
+                    )
+                  )
+                ),
+                ## rankings
+                tabPanel(
+                  title = 'Director/Actor Rankings',
+                  fluidRow(
+                    column(
+                      width = 12, offset = 0, align = 'center',
+                      box(
+                        title = 'Top Actors by Average Rating', status = 'success', width = NULL,
+                        solidHeader = TRUE, collapsible = TRUE,
+                        tabBox(
+                          title = NULL, width = NULL,
+                          tabPanel(title = 'IMDb Rating', dataTableOutput(outputId = 'top_actor_imdb')),
+                          tabPanel(title = 'Metascore', dataTableOutput(outputId = 'top_actor_meta')),
+                          tabPanel(title = 'Tomatometer', dataTableOutput(outputId = 'top_actor_rt'))
+                        )
+                      ),
+                      box(
+                        title = 'Top Directors by Average Rating', status = 'success', width = NULL,
+                        solidHeader = TRUE, collapsible = TRUE,
+                        tabBox(
+                          title = NULL, width = NULL,
+                          tabPanel(title = 'IMDb Rating', dataTableOutput(outputId = 'top_direct_imdb')),
+                          tabPanel(title = 'Metascore', dataTableOutput(outputId = 'top_direct_meta')),
+                          tabPanel(title = 'Tomatometer', dataTableOutput(outputId = 'top_direct_rt'))
+                        )
+                      ),
+                      box(
+                        title = 'Top Director-Actor Duos by Average Rating', status = 'success', width = NULL,
+                        solidHeader = TRUE, collapsible = TRUE,
+                        tabBox(
+                          title = NULL, width = NULL,
+                          tabPanel(title = 'IMDb Rating', dataTableOutput(outputId = 'top_duo_imdb')),
+                          tabPanel(title = 'Metascore', dataTableOutput(outputId = 'top_duo_meta')),
+                          tabPanel(title = 'Tomatometer', dataTableOutput(outputId = 'top_duo_rt'))
                         )
                       )
                     )
@@ -95,6 +116,7 @@ dbBody = dashboardBody(
             )
           )
         ),
+        ## Director insights page
         tabItem(
           tabName = 'director',
           fluidRow(
@@ -114,6 +136,7 @@ dbBody = dashboardBody(
             )
           )
         ),
+        ## Actor insights page
         tabItem(
           tabName = 'actor',
           fluidRow(
