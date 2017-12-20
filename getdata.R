@@ -61,11 +61,11 @@ movies.all = omdb %>% select(-Genre) %>%
 actors = lapply(1:nrow(omdb), function(i) {
   acts = str_split(omdb$Actors[i], ',')[[1]] %>% str_trim()
   data.frame(imdbID = rep(omdb$imdbID[i], length(acts)), Actor = acts)
-}) %>% bind_rows()
+}) %>% bind_rows() %>% filter(Actor != NA & Actor != '')
 ## directors table
 directors = lapply(1:nrow(omdb), function(i) {
   dirs = str_split(omdb$Director[i], ',')[[1]] %>% str_trim()
   data.frame(imdbID = rep(omdb$imdbID[i], length(dirs)), Director = dirs)
-}) %>% bind_rows()
+}) %>% bind_rows() %>% filter(Director != NA & Director != '')
 
 save(movies.all, actors, directors, file = 'movies.all.RData')
