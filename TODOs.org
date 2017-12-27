@@ -27,7 +27,18 @@
 **** TODO Possibly: Top writers
 ** Director page
 *** TODO Tab 1: Basic information; movies directed
+**** TODO Use [[http://www.imdb.com/xml/find?json=1&nr=1&nm=on&q=quentin+tarantino][this api]] to get actor and director's name ids
+**** TODO Use their id to access their imdb pages and scrape relevant data
 *** TODO Tab 2: Statistics and plots: Yearly trend, scatter of movies, most co-oped actors
-** Director page
+**** TODO Most should be done using just the omdb data alone
+** Actor page
 *** TODO Tab 1: Basic information; movies played 
+**** TODO Mug shot
+**** TODO Name, birth date, etc.
+**** TODO link to IMDb page
+**** TODO info/value boxes of the number of awards
 *** TODO Tab 2: Statistics and plots: Yearly trend, scatter of movies, most co-oped actors/directors
+**** TODO 3 or 5 highest and lowest rated films
+**** TODO Scatter plot of movies ratings timeline
+**** TODO Bar chart of movie genres
+**** TODO Most co-oped actors/directors, can be info/value boxes
