@@ -74,7 +74,33 @@ ranking = function(dat, type = c('dir', 'act', 'duo'), thres) {
             class = 'cell-border stripe', options = list(pageLength = 10), filter = "top")
 }
 
-
+## plots for actor/director insights
+## bar chart of ratings
+bar_ratings = function(dat, Source = c('imdb', 'meta', 'rt')) {
+  sour = match.arg(Source, c('imdb', 'meta', 'rt'))
+  tmp = switch(sour,
+               'imdb' = dat %>% rename(Ratings = `IMDb Rating`),
+               'meta' = dat %>% rename(Ratings = Metascore),
+               'rt' = dat %>% rename(Ratings = Tomatometer)
+               )
+  tmp = tmp %>% arrange(Ratings)
+  tmp$Title = factor(tmp$Title %>% as.character(), levels = tmp$Title)
+  p = tmp %>%
+    ggplot(aes(Title, Ratings)) + geom_col(fill = "#386cb0", width = 0.7) + coord_flip()
+  plot_custom(p) %>% ggplotly()
+}
+## time line of films
+timeline = function(dat, Source = c('imdb', 'meta', 'rt')) {
+  sour = match.arg(Source, c('imdb', 'meta', 'rt'))
+  tmp = switch(sour,
+               'imdb' = dat %>% rename(Ratings = `IMDb Rating`),
+               'meta' = dat %>% rename(Ratings = Metascore),
+               'rt' = dat %>% rename(Ratings = Tomatometer)
+               )
+  tmp = tmp %>% arrange(Ratings)
+  p = tmp %>% ggplot(aes(Year, Ratings, text = Title)) + geom_point(col = '#386cb0', alpha = 0.7)
+  plot_custom(p) %>% ggplotly()
+}
 
 ################################################################################
 ## Global variables

@@ -35,9 +35,10 @@ dbBody = dashboardBody(
               box(title = 'Minimum number of movies - actor', status = 'primary', solidHeader = T, width = NULL,
                   sliderInput(inputId = 'min_movies_act', label = NULL, min = 1, max = 20, value = 10)
                   ),
-              box(title = 'First n actors in credits', status = 'primary', solidHeader = T, width = NULL,
-                  sliderInput(inputId = 'first_n_actors', label = NULL, min = 1, max = 20, value = 10)
-                  ),
+              ## need to scrape more actors from IMDb for this filter, the OMDb API only have the top 4 actors
+              ## box(title = 'First n actors in credits', status = 'primary', solidHeader = T, width = NULL,
+              ##     sliderInput(inputId = 'first_n_actors', label = NULL, min = 1, max = 20, value = 10)
+              ##     ),
               box(title = 'Genres', status = 'primary', solidHeader = T, width = NULL,
                   checkboxGroupInput(inputId = 'genre', label = NULL,
                                      choices = genres, selected = genres),
@@ -156,9 +157,16 @@ dbBody = dashboardBody(
                   column(width = 4, valueBoxOutput(outputId = 'oscar_a', width = NULL),
                          valueBoxOutput(outputId = 'golden_globe_a', width = NULL))
                   ),
-              box(title = 'Statistics', status = 'success', width = NULL,
-                  collapsible = TRUE, solidHeader = TRUE
-                  )
+              ## box(title = 'Statistics', status = 'success', width = NULL,
+              ##     collapsible = TRUE, solidHeader = TRUE
+              ##     )
+              tabBox(
+                title = 'Statistics', width = NULL,
+                tabPanel(
+                  title = 'IMDb Rating', plotlyOutput('top_bottom_act_imdb'), plotlyOutput('timeline_act_imdb'),
+                  plotlyOutput('genre_act_imdb')
+                )
+              )
             )
           )
         )

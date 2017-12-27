@@ -94,4 +94,20 @@ function(input, output, session) {
     dat = dat.actors() %>% rename(Ratings = Tomatometer)
     ranking(dat, 'act', input$min_movies_act)
   })
+
+  ## director insights
+
+  ## actor insights
+  stat.act1 = reactive({
+    actors %>% filter(Actor == input$search_actor) %>%
+      inner_join(movies.all %>% select(-Actors), by = 'imdbID')
+  })
+  stat.act2 = reactive({
+    actors %>% filter(Actor == input$search_actor) %>%
+      inner_join(movies.all %>% select(-Actors), by = 'imdbID') %>%
+      group_by(imdbID) %>% filter(row_number() == 1) %>%
+      mutate(Title = str_sub(Title, end = 30) %>% paste0(ifelse(str_length(Title) > 30, '...', '')))
+  })
+  output$top_bottom_act_imdb = renderPlotly(bar_ratings(stat.act2(), 'imdb'))
+  output$timeline_act_imdb = renderPlotly(timeline(stat.act2(), 'imdb'))
 }
