@@ -34,7 +34,7 @@
 ** Actor page
 *** TODO Tab 1: Basic information; movies played 
 **** TODO Mug shot
-**** TODO Name, birth date, etc.
+**** TODO Name, birth date, height, trademark, movies played, total box office
 **** TODO link to IMDb page
 **** TODO info/value boxes of the number of awards
 *** TODO Tab 2: Statistics and plots: Yearly trend, scatter of movies, most co-oped actors/directors
