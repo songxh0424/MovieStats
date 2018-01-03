@@ -96,8 +96,28 @@ function(input, output, session) {
   })
 
   ## director insights
+  output$img_dir = renderUI(img(src = directorIDs[[input$search_director]]$image, height = 400))
+  stat.dir1 = reactive({
+    directors %>% filter(Director == input$search_director) %>%
+      inner_join(movies.all %>% select(-Director), by = 'imdbID')
+  })
+  stat.dir2 = reactive({
+    directors %>% filter(Director == input$search_director) %>%
+      inner_join(movies.all %>% select(-Director), by = 'imdbID') %>%
+      group_by(imdbID) %>% filter(row_number() == 1) %>%
+      mutate(Title = str_sub(Title, end = 30) %>% paste0(ifelse(str_length(Title) > 30, '...', '')))
+  })
+  output$top_bottom_dir_imdb = renderPlotly(bar_ratings(stat.dir2(), 'imdb'))
+  output$timeline_dir_imdb = renderPlotly(timeline(stat.dir2(), 'imdb'))
+
+  output$top_bottom_dir_meta = renderPlotly(bar_ratings(stat.dir2(), 'meta'))
+  output$timeline_dir_meta = renderPlotly(timeline(stat.dir2(), 'meta'))
+
+  output$top_bottom_dir_rt = renderPlotly(bar_ratings(stat.dir2(), 'rt'))
+  output$timeline_dir_rt = renderPlotly(timeline(stat.dir2(), 'rt'))
 
   ## actor insights
+  output$img_act = renderUI(img(src = actorIDs[[input$search_actor]]$image, height = 400)) 
   stat.act1 = reactive({
     actors %>% filter(Actor == input$search_actor) %>%
       inner_join(movies.all %>% select(-Actors), by = 'imdbID')
@@ -110,4 +130,10 @@ function(input, output, session) {
   })
   output$top_bottom_act_imdb = renderPlotly(bar_ratings(stat.act2(), 'imdb'))
   output$timeline_act_imdb = renderPlotly(timeline(stat.act2(), 'imdb'))
+
+  output$top_bottom_act_meta = renderPlotly(bar_ratings(stat.act2(), 'meta'))
+  output$timeline_act_meta = renderPlotly(timeline(stat.act2(), 'meta'))
+
+  output$top_bottom_act_rt = renderPlotly(bar_ratings(stat.act2(), 'rt'))
+  output$timeline_act_rt = renderPlotly(timeline(stat.act2(), 'rt'))
 }

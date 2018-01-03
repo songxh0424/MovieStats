@@ -50,14 +50,15 @@ plot_custom <- function(p, saveTo = NULL, base_size=10, legend.pos = "right") {
 ## yearly trend
 year_trend = function(dat) {
   p = ggplot(dat, aes(Year, Ratings)) + geom_line(color = '#386cb0') +
-      geom_point(size = 0.5, color = '#386cb0') +
-      ggtitle('Yearly Average Rating')
+      geom_point(size = 0.5, color = '#386cb0') 
+      ## ggtitle('Yearly Average Rating')
   plot_custom(p) %>% ggplotly()
 }
 
 box_genre = function(dat) {
   p = ggplot(dat, aes(Genre, Ratings, color = Genre)) + stat_boxplot(geom = "errorbar", width = 0.8) +
-    geom_boxplot() + ggtitle('Ratings by Genre') + ylim(c(0, 100))
+    geom_boxplot() + ylim(c(0, 100))
+    ## ggtitle('Ratings by Genre')  
   (plot_custom(p, legend.pos = 'none') + theme(axis.text.x = element_text(angle = 90, hjust = 1))) %>% ggplotly()
 }
 
@@ -83,11 +84,12 @@ bar_ratings = function(dat, Source = c('imdb', 'meta', 'rt')) {
                'meta' = dat %>% rename(Ratings = Metascore),
                'rt' = dat %>% rename(Ratings = Tomatometer)
                )
-  tmp = tmp %>% arrange(Ratings)
+  tmp = tmp %>% arrange(Ratings) %>% filter(!is.na(Ratings))
   tmp$Title = factor(tmp$Title %>% as.character(), levels = tmp$Title)
   p = tmp %>%
-    ggplot(aes(Title, Ratings)) + geom_col(fill = "#386cb0", width = 0.7) + coord_flip()
-  plot_custom(p) %>% ggplotly()
+    ggplot(aes(Title, Ratings)) + geom_col(fill = "#fdb462", width = 0.7) +
+    coord_flip() + ggtitle('All Movie Ratings')
+  plot_custom(p) %>% ggplotly(height = 550)
 }
 ## time line of films
 timeline = function(dat, Source = c('imdb', 'meta', 'rt')) {
@@ -97,9 +99,10 @@ timeline = function(dat, Source = c('imdb', 'meta', 'rt')) {
                'meta' = dat %>% rename(Ratings = Metascore),
                'rt' = dat %>% rename(Ratings = Tomatometer)
                )
-  tmp = tmp %>% arrange(Ratings)
-  p = tmp %>% ggplot(aes(Year, Ratings, text = Title)) + geom_point(col = '#386cb0', alpha = 0.7)
-  plot_custom(p) %>% ggplotly()
+  tmp = tmp %>% arrange(Ratings) %>% filter(!is.na(Ratings))
+  p = tmp %>% ggplot(aes(Year, Ratings, text = Title)) + geom_point(col = '#386cb0', alpha = 0.7) +
+    ggtitle('Timeline of Movies')
+  plot_custom(p) %>% ggplotly(width = 650, height = 450)
 }
 
 ################################################################################
@@ -115,6 +118,8 @@ library(plotly)
 library(stringr)
 library(DT)
 load('./movies.all.RData')
+load('./actorIDs.RData')
+load('./directorIDs.RData')
 dirs = directors$Director %>% unique()
 acts = actors$Actor %>% unique()
 acts = acts[1:10000]
