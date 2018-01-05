@@ -7,8 +7,8 @@ dbBody = dashboardBody(
         tabItem(
           tabName = 'main',
           fluidRow(
-            column(width = 10, offset = 1, align = 'center', h2('Overview')),
-            column(width = 10, offset = 1, p('Write something. '))
+            ## column(width = 10, offset = 1, align = 'center', h1('Overview')),
+            column(width = 10, offset = 1, includeMarkdown('./README.md'))
           )
         ),
         ## Stats page body
@@ -16,7 +16,7 @@ dbBody = dashboardBody(
           tabName = 'stats',
           fluidRow(
             ## title
-            column(width = 10, offset = 1, align = 'center', h2('Statistics and Rankings'), tags$br()),
+            column(width = 10, offset = 1, align = 'center', h1('Statistics and Rankings'), tags$br()),
             ## filtering criteria
             column(
               width = 3,
@@ -127,14 +127,13 @@ dbBody = dashboardBody(
         tabItem(
           tabName = 'director',
           fluidRow(
-            column(width = 10, offset = 1, align = 'center', h2('Director Insights'), tags$br()),
+            column(width = 10, offset = 1, align = 'center', h1('Director Insights'), tags$br()),
             column(
               width = 10, offset = 1, align = 'center',
               box(title = 'General Information', status = 'success', width = NULL,
                   collapsible = TRUE, solidHeader = TRUE,
-                  ## column(width = 4, img(src = 'emptyPortrait.png')),
-                  column(width = 4, uiOutput(outputId = 'img_dir')),
-                  column(width = 4, htmlOutput(outputId = 'director_info')),
+                  column(width = 3, uiOutput(outputId = 'img_dir')),
+                  column(width = 5, uiOutput(outputId = 'dir_info')),
                   column(width = 4, valueBoxOutput(outputId = 'oscar_d', width = NULL),
                          valueBoxOutput(outputId = 'golden_globe_d', width = NULL))
                   ),
@@ -163,14 +162,13 @@ dbBody = dashboardBody(
         tabItem(
           tabName = 'actor',
           fluidRow(
-            column(width = 10, offset = 1, align = 'center', h2('Actor Insights'), tags$br()),
+            column(width = 10, offset = 1, align = 'center', h1('Actor Insights'), tags$br()),
             column(
               width = 10, offset = 1, align = 'center',
               box(title = 'General Information', status = 'success', width = NULL,
                   collapsible = TRUE, solidHeader = TRUE,
-                  ## column(width = 4, img(src = 'emptyPortrait.png')),
-                  column(width = 4, uiOutput(outputId = 'img_act')),
-                  column(width = 4, htmlOutput(outputId = 'actor_info')),
+                  column(width = 3, uiOutput(outputId = 'img_act')),
+                  column(width = 5, uiOutput(outputId = 'act_info')),
                   column(width = 4, valueBoxOutput(outputId = 'oscar_a', width = NULL),
                          valueBoxOutput(outputId = 'golden_globe_a', width = NULL))
                   ),

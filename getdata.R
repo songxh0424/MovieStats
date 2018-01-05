@@ -106,27 +106,33 @@ names(actorIDs) = unique(actors$Actor)
 save(actorIDs, file = 'actorIDs.RData')
 
 ## get information on actors and directors
+getInfo = function(id) {
+  url = sprintf('http://www.imdb.com/name/%s/?ref_=nv_sr_1', id)
+  webHTML = read_html(url)
+  born = webHTML %>% html_node('#name-born-info')
+  bdate = born %>% html_node('time') %>% html_text() %>% str_replace_all('\\s+', ' ') %>% str_trim()
+  bplace = born %>% html_nodes('a') %>% last() %>% html_text() %>% str_replace_all('\\s+', ' ') %>% str_trim()
+  ## aka = webHTML %>% html_nodes('#details-akas') %>% html_text()
+  height = webHTML %>% html_nodes('#details-height') %>% html_text() %>%
+    str_replace_all('\\s+', '') %>% str_replace('Height:', '')
+
+  ## url_trademark = sprintf('http://www.imdb.com/name/%s/bio?ref_=nm_dyk_tm_sm#trademark', id)
+
+  ## url_awards = sprintf('http://www.imdb.com/name/%s/awards?ref_=nm_ql_2', id)
+  ## awardHTML = read_html(url_awards)
+  ## tables = html_nodes(awardHTML, 'table')
+  return(list(bdate = bdate, bplace = bplace, height = height))
+}
 cores = 24 
 registerDoParallel(cores = cores)
 dirInfos = foreach(dir = directorIDs) %dopar% 
   tryCatch({
     if(is.null(dir)) return(NULL)
-    url = sprintf('http://www.imdb.com/name/%s/?ref_=nv_sr_1', dir$id)
-    webHTML = read_html(url)
-    born = webHTML %>% html_node('#name-born-info')
-    bdate = born %>% html_node('time') %>% html_text() %>% str_replace_all('\\s+', ' ') %>% str_trim()
-    bplace = born %>% html_nodes('a') %>% last() %>% html_text() %>% str_replace_all('\\s+', ' ') %>% str_trim()
-    ## aka = webHTML %>% html_nodes('#details-akas') %>% html_text()
-    height = webHTML %>% html_nodes('#details-height') %>% html_text() %>%
-      str_replace_all('\\s+', '') %>% str_replace('Height:', '')
-
-    ## url_trademark = sprintf('http://www.imdb.com/name/%s/bio?ref_=nm_dyk_tm_sm#trademark', dir$id)
-
-    ## url_awards = sprintf('http://www.imdb.com/name/%s/awards?ref_=nm_ql_2', dir$id)
-    ## awardHTML = read_html(url_awards)
-    ## tables = html_nodes(awardHTML, 'table')
-    list(bdate = bdate, bplace = bplace, height = height)
+    id = dir$id
+    getInfo(id)
   }, error = function(e) {print(e); return(NULL)})
+names(dirInfos) = names(directorIDs)
+save(dirInfos, file = 'dirInfos.RData')
 
   ## tryCatch({
   ## })

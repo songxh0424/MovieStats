@@ -96,10 +96,23 @@ function(input, output, session) {
   })
 
   ## director insights
-  output$img_dir = renderUI(img(src = directorIDs[[input$search_director]]$image, height = 400))
+  output$img_dir = renderUI({
+    src = directorIDs[[input$search_director]]$image
+    src = ifelse(is.null(src), 'emptyPortrait.png', src)
+    img(src = directorIDs[[input$search_director]]$image, height = 300)
+  })
   stat.dir1 = reactive({
     directors %>% filter(Director == input$search_director) %>%
       inner_join(movies.all %>% select(-Director), by = 'imdbID')
+  })
+  output$dir_info = renderUI({
+    infos = dirInfos[[input$search_director]]
+    b = tags$b
+    fluidRow(column(width = 12, align = 'left', h2(input$search_director),
+                    p(b('Birth Date: '), ifelse(is.null(infos$bdate), 'Not found', infos$bdate), HTML('<br/>'),
+                      b('Birth Place: '), ifelse(is.null(infos$bplace), 'Not found', infos$bplace), HTML('<br/>'),
+                      b('Height:'), ifelse(is.null(infos$height), 'Not found', infos$height), HTML('<br/>'))
+             ))
   })
   stat.dir2 = reactive({
     directors %>% filter(Director == input$search_director) %>%
@@ -117,7 +130,11 @@ function(input, output, session) {
   output$timeline_dir_rt = renderPlotly(timeline(stat.dir2(), 'rt'))
 
   ## actor insights
-  output$img_act = renderUI(img(src = actorIDs[[input$search_actor]]$image, height = 400)) 
+  output$img_act = renderUI({
+    src = actorIDs[[input$search_actor]]$image
+    src = ifelse(is.null(src), 'emptyPortrait.png', src)
+    img(src = actorIDs[[input$search_actor]]$image, height = 300)
+  })
   stat.act1 = reactive({
     actors %>% filter(Actor == input$search_actor) %>%
       inner_join(movies.all %>% select(-Actors), by = 'imdbID')
