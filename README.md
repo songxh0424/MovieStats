@@ -29,3 +29,7 @@ Finally, some of the general information on **Directors** page and **Actors** pa
 package `rvest`
 
 ## Issues and TODOs
+
+ + The OMDb API only lists the top 4 actors for each movie. Need to get more actors from IMDb.
+ + The layout of Directors/Actors pages need to be reworked. 
+ + Director images vary. Can collide with text on the right.
