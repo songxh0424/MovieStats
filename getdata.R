@@ -57,7 +57,9 @@ genres = lapply(1:nrow(movieGenres), function(i) {
 }) %>% bind_rows()
 movies.all = omdb %>% select(-Genre) %>%
   inner_join(movies %>% mutate(imdbId = paste0('tt', imdbId)), by = c('imdbID' = 'imdbId')) %>%
-  inner_join(genres, by = 'movieId')
+  inner_join(genres, by = 'movieId') %>%
+  mutate(Title = str_trim(Title),
+         BoxOffice = BoxOffice %>% str_sub(start = 2) %>% str_replace_all(',', '') %>% as.numeric())
 
 ## actors table
 actors = lapply(1:nrow(omdb), function(i) {
