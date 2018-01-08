@@ -87,7 +87,7 @@ bar_ratings = function(dat, Source = c('imdb', 'meta', 'rt')) {
   tmp = tmp %>% arrange(Ratings) %>% filter(!is.na(Ratings))
   tmp$Title = factor(tmp$Title %>% as.character(), levels = tmp$Title)
   p = tmp %>%
-    ggplot(aes(Title, Ratings)) + geom_col(fill = "#fdb462", width = 0.7) +
+    ggplot(aes(Title, Ratings)) + geom_col(fill = "#fdb462", width = 0.7, alpha = 0.8) +
     coord_flip() + ggtitle('All Movie Ratings')
   plot_custom(p) %>% ggplotly(height = 550)
 }
@@ -100,7 +100,7 @@ timeline = function(dat, Source = c('imdb', 'meta', 'rt')) {
                'rt' = dat %>% rename(Ratings = Tomatometer)
                )
   tmp = tmp %>% arrange(Ratings) %>% filter(!is.na(Ratings))
-  p = tmp %>% ggplot(aes(Year, Ratings, text = Title)) + geom_point(col = '#386cb0', alpha = 0.7) +
+  p = tmp %>% ggplot(aes(Year, Ratings, text = Title)) + geom_point(col = '#386cb0', alpha = 0.8) +
     ggtitle('Timeline of Movies')
   plot_custom(p) %>% ggplotly(width = 650, height = 450)
 }
@@ -118,6 +118,7 @@ library(plotly)
 library(stringr)
 library(DT)
 library(markdown)
+library(lubridate)
 load('./movies.all.RData')
 load('./actorIDs.RData')
 load('./directorIDs.RData')
@@ -131,4 +132,6 @@ genres = c('Action', 'Adventure', 'Animation', 'Children', 'Comedy', 'Crime', 'D
 source('header.R')
 source('sidebar.R')
 source('body.R')
+b = tags$b
+br = tags$br
 
