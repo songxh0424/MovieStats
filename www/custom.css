@@ -1,0 +1,11 @@
+.main-header .logo {
+    font-family: 'Lobster', cursive;
+    font-weight: 500;
+    font-size: 24px;
+    /* line-height: 1.1; */
+    /* color: #48ca3b; */
+}
+
+.small-box {
+    height: 95px
+}
