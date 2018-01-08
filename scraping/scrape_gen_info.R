@@ -7,8 +7,8 @@ library(jsonlite)
 library(doParallel)
 library(parallel)
 library(rvest)
-load('../RData/directorIDs.RData')
-load('../RData/actorIDs.RData')
+dirIDs = readRDS('../RData/dirIDs.rds')
+actIDs = readRDS('../RData/actIDs.rds')
 
 ## get information on actors and directors
 getInfo = function(id) {
@@ -30,25 +30,25 @@ getInfo = function(id) {
 }
 cores = 24 
 registerDoParallel(cores = cores)
-dirInfos = foreach(dir = directorIDs) %dopar% 
+dirInfos = foreach(dir = dirIDs) %dopar% 
   tryCatch({
     if(is.null(dir)) return(NULL)
     id = dir$id
     getInfo(id)
   }, error = function(e) {print(e); return(NULL)})
-names(dirInfos) = names(directorIDs)
-save(dirInfos, file = '../RData/dirInfos.RData')
+names(dirInfos) = names(dirIDs)
+saveRDS(dirInfos, file = '../RData/dirInfos.rds')
 
 cores = 24 
 registerDoParallel(cores = cores)
-actInfos = foreach(act = actorIDs) %dopar% 
+actInfos = foreach(act = actIDs) %dopar% 
   tryCatch({
     if(is.null(dir)) return(NULL)
     id = act$id
     getInfo(id)
   }, error = function(e) {print(e); return(NULL)})
-names(actInfos) = names(actorIDs)
-save(actInfos, file = '../RData/actInfos.RData')
+names(actInfos) = names(actIDs)
+saveRDS(actInfos, file = '../RData/actInfos.rds')
 
   ## tryCatch({
   ## })

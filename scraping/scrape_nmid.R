@@ -33,10 +33,14 @@ directorIDs = foreach(dir = unique(directors$Director)) %dopar%
            error = function(e) {print(sprintf('Error: Director %s', dir)); return(NULL)}
            )
 names(directorIDs) = unique(directors$Director)
+dirIDs = directorIDs[unique(dirs$Director)]
 save(directorIDs, file = '../RData/directorIDs.RData')
+saveRDS(dirIDs, file = '../RData/dirIDs.rds')
 actorIDs = foreach(act = unique(actors$Actor)) %dopar%
   tryCatch(get_nmid(act),
            error = function(e) {print(sprintf('Error: Actor %s', act)); return(act)}
            )
 names(actorIDs) = unique(actors$Actor)
+actIDs = actorIDs[unique(acts$Actor)]
 save(actorIDs, file = '../RData/actorIDs.RData')
+saveRDS(actIDs, file = '../RData/actIDs.rds')
