@@ -86,7 +86,7 @@ dbBody = dashboardBody(
                       ## scatter plot of box office over time/rating
                       box(
                         title = 'Box Office', status = 'success', width = NULL,
-                        solidHeader = TRUE, collapsible = TRUE,
+                        solidHeader = TRUE, collapsible = TRUE, 
                         tabBox(
                           title = NULL, width = NULL,
                           tabPanel(title = 'By Year', plotlyOutput(outputId = 'bo_year', height = 600)),
@@ -149,18 +149,18 @@ dbBody = dashboardBody(
             box(
               title = 'General Information', status = 'success', width = 6, height = 390, 
               collapsible = FALSE, solidHeader = TRUE,
-              uiOutput(outputId = 'gen_info')
+              uiOutput(outputId = 'dir_gen_info')
             ),
             box(
               title = 'Career Highlights', status = 'success', width = 6, height = 390,
               collapsible = FALSE, solidHeader = TRUE,
-              uiOutput(outputId = 'carir_hlt')
+              uiOutput(outputId = 'dir_carir_hlt')
             )
           ),
           fluidRow(
             box(
-              title = 'Statistics', status = 'success', width = 12,
-              collapsible = TRUE, solidHeader = TRUE,
+              title = 'Visualizations', status = 'success', width = 12,
+              collapsible = TRUE, solidHeader = TRUE, collapsed = TRUE,
               tabBox(
                 title = NULL, width = NULL,
                 tabPanel(
@@ -184,33 +184,36 @@ dbBody = dashboardBody(
           tabName = 'actor',
           fluidRow(
             column(width = 10, offset = 1, align = 'center', h1('Actor Insights'), tags$br()),
-            column(
-              width = 10, offset = 1, align = 'center',
-              box(title = 'General Information', status = 'success', width = NULL,
-                  collapsible = TRUE, solidHeader = TRUE,
-                  column(width = 3, uiOutput(outputId = 'img_act')),
-                  column(width = 5, uiOutput(outputId = 'act_info')),
-                  column(width = 4, valueBoxOutput(outputId = 'oscar_a', width = NULL),
-                         valueBoxOutput(outputId = 'golden_globe_a', width = NULL))
-                  ),
-              box(title = 'Statistics', status = 'success', width = NULL,
-                  collapsible = TRUE, solidHeader = TRUE,
-                  tabBox(
-                    title = NULL, width = NULL,
-                    tabPanel(
-                      title = 'IMDb Rating', plotlyOutput('top_bottom_act_imdb', height = 'auto'), plotlyOutput('timeline_act_imdb', height = 'auto'),
-                      plotlyOutput('genre_act_imdb')
-                    ),
-                    tabPanel(
-                      title = 'Metascore', plotlyOutput('top_bottom_act_meta', height = 'auto'), plotlyOutput('timeline_act_meta', height = 'auto'),
-                      plotlyOutput('genre_act_meta')
-                    ),
-                    tabPanel(
-                      title = 'Tomatometer', plotlyOutput('top_bottom_act_rt', height = 'auto'), plotlyOutput('timeline_act_rt', height = 'auto'),
-                      plotlyOutput('genre_act_rt')
-                    )
-                  )
-                  )
+            box(
+              title = 'General Information', status = 'success', width = 6, height = 390, 
+              collapsible = FALSE, solidHeader = TRUE,
+              uiOutput(outputId = 'act_gen_info')
+            ),
+            box(
+              title = 'Career Highlights', status = 'success', width = 6, height = 390,
+              collapsible = FALSE, solidHeader = TRUE,
+              uiOutput(outputId = 'act_carir_hlt')
+            )
+          ),
+          fluidRow(
+            box(
+              title = 'Visualizations', status = 'success', width = 12,
+              collapsible = TRUE, solidHeader = TRUE, collapsed = TRUE,
+              tabBox(
+                title = NULL, width = NULL,
+                tabPanel(
+                  title = 'IMDb Rating', plotlyOutput('top_bottom_act_imdb', height = 'auto'), plotlyOutput('timeline_act_imdb', height = 'auto'),
+                  plotlyOutput('genre_act_imdb')
+                ),
+                tabPanel(
+                  title = 'Metascore', plotlyOutput('top_bottom_act_meta', height = 'auto'), plotlyOutput('timeline_act_meta', height = 'auto'),
+                  plotlyOutput('genre_act_meta')
+                ),
+                tabPanel(
+                  title = 'Tomatometer', plotlyOutput('top_bottom_act_rt', height = 'auto'), plotlyOutput('timeline_act_rt', height = 'auto'),
+                  plotlyOutput('genre_act_rt')
+                )
+              )
             )
           )
         )

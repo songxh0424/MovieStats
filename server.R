@@ -67,7 +67,7 @@ function(input, output, session) {
     movies.all %>% filter(Year >= input$year[1] & Year <= input$year[2]) %>%
       filter(Genre %in% input$genre) %>% group_by(imdbID) %>%
       filter(row_number() == 1) %>% select(-Director) %>%
-      inner_join(directors, by = 'imdbID') %>% group_by(Director) %>%
+      inner_join(dirs, by = 'imdbID') %>% group_by(Director) %>%
       summarise(Movies = n(), `IMDb Rating` = mean(`IMDb Rating`, na.rm = TRUE) %>% round(2),
                 Metascore = mean(Metascore, na.rm = T) %>% round(2),
                 Tomatometer = mean(Tomatometer, na.rm = T) %>% round(2))
@@ -89,7 +89,7 @@ function(input, output, session) {
     movies.all %>% filter(Year >= input$year[1] & Year <= input$year[2]) %>%
       filter(Genre %in% input$genre) %>% group_by(imdbID) %>%
       filter(row_number() == 1) %>% select(-Actors) %>%
-      inner_join(actors, by = 'imdbID') %>% group_by(Actor) %>%
+      inner_join(acts, by = 'imdbID') %>% group_by(Actor) %>%
       summarise(Movies = n(), `IMDb Rating` = mean(`IMDb Rating`, na.rm = TRUE) %>% round(2),
                 Metascore = mean(Metascore, na.rm = T) %>% round(2),
                 Tomatometer = mean(Tomatometer, na.rm = T) %>% round(2))
@@ -111,25 +111,25 @@ function(input, output, session) {
   ## director insights
 ################################################################################
   stat.dir1 = reactive({
-    directors %>% filter(Director == input$search_director) %>%
+    dirs %>% filter(Director == input$search_director) %>%
       inner_join(movies.all %>% select(-Director), by = 'imdbID')
   })
   stat.dir2 = reactive({
-    directors %>% filter(Director == input$search_director) %>%
+    dirs %>% filter(Director == input$search_director) %>%
       inner_join(movies.all %>% select(-Director), by = 'imdbID') %>%
       group_by(imdbID) %>% filter(row_number() == 1) %>%
       mutate(Title = str_sub(Title, end = 30) %>% paste0(ifelse(str_length(Title) > 30, '...', '')))
   })
   ## general infos
-  output$gen_info = renderUI({
-    src = directorIDs[[input$search_director]]$image
+  output$dir_gen_info = renderUI({
+    src = dirIDs[[input$search_director]]$image
     src = ifelse(is.null(src), 'emptyPortrait.png', src)
     infos = dirInfos[[input$search_director]]
-    link = sprintf('http://www.imdb.com/name/%s', directorIDs[[input$search_director]]$id)
+    link = sprintf('http://www.imdb.com/name/%s', dirIDs[[input$search_director]]$id)
     fluidRow(
       column(
         width = 5, align = 'left', 
-        img(src = directorIDs[[input$search_director]]$image, height = 320, width = 213)
+        img(src = dirIDs[[input$search_director]]$image, height = 320, width = 213)
       ),
       column(
         width = 7, align = 'left', h2(input$search_director),
@@ -143,7 +143,7 @@ function(input, output, session) {
     )
   })
   ## career highlight
-  output$carir_hlt = renderUI({
+  output$dir_carir_hlt = renderUI({
     fluidRow(
       column(
         width = 7, align = 'left',
@@ -183,20 +183,65 @@ function(input, output, session) {
 ################################################################################
   ## actor insights
 ################################################################################
-  output$img_act = renderUI({
-    src = actorIDs[[input$search_actor]]$image
-    src = ifelse(is.null(src), 'emptyPortrait.png', src)
-    img(src = actorIDs[[input$search_actor]]$image, height = 300)
-  })
   stat.act1 = reactive({
-    actors %>% filter(Actor == input$search_actor) %>%
+    acts %>% filter(Actor == input$search_actor) %>%
       inner_join(movies.all %>% select(-Actors), by = 'imdbID')
   })
   stat.act2 = reactive({
-    actors %>% filter(Actor == input$search_actor) %>%
+    acts %>% filter(Actor == input$search_actor) %>%
       inner_join(movies.all %>% select(-Actors), by = 'imdbID') %>%
       group_by(imdbID) %>% filter(row_number() == 1) %>%
       mutate(Title = str_sub(Title, end = 30) %>% paste0(ifelse(str_length(Title) > 30, '...', '')))
+  })
+  ## general infos
+  output$act_gen_info = renderUI({
+    src = actIDs[[input$search_actor]]$image
+    src = ifelse(is.null(src), 'emptyPortrait.png', src)
+    infos = actInfos[[input$search_actor]]
+    link = sprintf('http://www.imdb.com/name/%s', actIDs[[input$search_actor]]$id)
+    fluidRow(
+      column(
+        width = 5, align = 'left', 
+        img(src = actIDs[[input$search_actor]]$image, height = 320, width = 213)
+      ),
+      column(
+        width = 7, align = 'left', h2(input$search_actor),
+        p(b('Age: '), ifelse(is.null(infos$bdate), 'Not found', 2018 - str_replace(infos$bdate, '^.+,', '' %>% str_trim()) %>% as.numeric()), br(),
+          b('Birth Date: '), ifelse(is.null(infos$bdate), 'Not found', infos$bdate), br(),
+          b('Birth Place: '), ifelse(is.null(infos$bplace), 'Not found', infos$bplace), br(),
+          b('Height:'), ifelse(is.null(infos$height), 'Not found', infos$height), br(),
+          b('IMDb Profile: '), a(href = link, link %>% str_sub(start = 8)),
+          h4('Trade Mark'))
+      )
+    )
+  })
+  ## career highlight
+  output$act_carir_hlt = renderUI({
+    fluidRow(
+      column(
+        width = 7, align = 'left',
+        box(
+          width = NULL, height = 320,
+          h4('Best Seller'),
+          p(b('Box Office: '), stat.act2()$Title[which.max(stat.act2()$`BoxOffice`)], '- ',
+            paste0('$', max(stat.act2()$`BoxOffice`, na.rm = T) %>% prettyNum(big.mark = ',', trim = T)), br()),
+          h4('Highest rated movies'),
+          p(b('IMDb Rating: '), stat.act2()$Title[which.max(stat.act2()$`IMDb Rating`)], '- ', max(stat.act2()$`IMDb Rating`, na.rm = T), br(),
+            b('Metascore: '), stat.act2()$Title[which.max(stat.act2()$Metascore)], '- ', max(stat.act2()$Metascore, na.rm = T), br(),
+            b('Tomatometer: '), stat.act2()$Title[which.max(stat.act2()$Tomatometer)], '- ', max(stat.act2()$Tomatometer, na.rm = T), br()),
+          h4('Lowest rated movies'),
+          p(b('IMDb Rating: '), stat.act2()$Title[which.min(stat.act2()$`IMDb Rating`)], '- ', min(stat.act2()$`IMDb Rating`, na.rm = T), br(),
+            b('Metascore: '), stat.act2()$Title[which.min(stat.act2()$Metascore)], '- ', min(stat.act2()$Metascore, na.rm = T), br(),
+            b('Tomatometer: '), stat.act2()$Title[which.min(stat.act2()$Tomatometer)], '- ', min(stat.act2()$Tomatometer, na.rm = T), br())
+        )
+      ),
+      column(
+        width = 5, align = 'left',
+        valueBox(stat.act2()$Title %>% unique() %>% length(), 'Movies Made', icon = icon('video-camera'), color = 'aqua', width = 12),
+        valueBox(0, 'Oscars Won', icon = icon('user-circle-o'), color = 'yellow', width = 12),
+        valueBox(0, 'Oscars Nominated', icon = icon('user-o'), color = 'green', width = 12)
+      )
+    )
   })
   output$top_bottom_act_imdb = renderPlotly(bar_ratings(stat.act2(), 'imdb'))
   output$timeline_act_imdb = renderPlotly(timeline(stat.act2(), 'imdb'))
