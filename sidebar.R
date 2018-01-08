@@ -1,5 +1,5 @@
 dbSidebar = dashboardSidebar(
-  width = 300,
+  width = 270,
   sidebarMenu(
     menuItem('Main Page', tabName = 'main', icon = icon('home')),
     menuItem('Statistics and Rankings', tabName = 'stats', icon = icon('bar-chart')),

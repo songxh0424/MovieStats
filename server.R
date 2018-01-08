@@ -3,6 +3,9 @@
 ##   gather(key = Source, value = Ratings, Metascore, `IMDb Rating`, Tomatometer)
 
 function(input, output, session) {
+################################################################################
+  ## stats page
+################################################################################
   ## update the genre selection on stats page
   observeEvent(input$checkAll, {
     updateCheckboxGroupInput(session, label = NULL, inputId = 'genre',
@@ -95,24 +98,12 @@ function(input, output, session) {
     ranking(dat, 'act', input$min_movies_act)
   })
 
+################################################################################
   ## director insights
-  output$img_dir = renderUI({
-    src = directorIDs[[input$search_director]]$image
-    src = ifelse(is.null(src), 'emptyPortrait.png', src)
-    img(src = directorIDs[[input$search_director]]$image, height = 300)
-  })
+################################################################################
   stat.dir1 = reactive({
     directors %>% filter(Director == input$search_director) %>%
       inner_join(movies.all %>% select(-Director), by = 'imdbID')
-  })
-  output$dir_info = renderUI({
-    infos = dirInfos[[input$search_director]]
-    b = tags$b
-    fluidRow(column(width = 12, align = 'left', h2(input$search_director),
-                    p(b('Birth Date: '), ifelse(is.null(infos$bdate), 'Not found', infos$bdate), HTML('<br/>'),
-                      b('Birth Place: '), ifelse(is.null(infos$bplace), 'Not found', infos$bplace), HTML('<br/>'),
-                      b('Height:'), ifelse(is.null(infos$height), 'Not found', infos$height), HTML('<br/>'))
-             ))
   })
   stat.dir2 = reactive({
     directors %>% filter(Director == input$search_director) %>%
@@ -120,6 +111,54 @@ function(input, output, session) {
       group_by(imdbID) %>% filter(row_number() == 1) %>%
       mutate(Title = str_sub(Title, end = 30) %>% paste0(ifelse(str_length(Title) > 30, '...', '')))
   })
+  ## general infos
+  output$gen_info = renderUI({
+    src = directorIDs[[input$search_director]]$image
+    src = ifelse(is.null(src), 'emptyPortrait.png', src)
+    infos = dirInfos[[input$search_director]]
+    fluidRow(
+      column(
+        width = 5, align = 'left', 
+        img(src = directorIDs[[input$search_director]]$image, height = 320, width = 213)
+      ),
+      column(
+        width = 7, align = 'left', h2(input$search_director),
+        p(b('Age: '), ifelse(is.null(infos$bdate), 'Not found', 2018 - str_replace(infos$bdate, '^.+,', '' %>% str_trim()) %>% as.numeric()), br(),
+          b('Birth Date: '), ifelse(is.null(infos$bdate), 'Not found', infos$bdate), br(),
+          b('Birth Place: '), ifelse(is.null(infos$bplace), 'Not found', infos$bplace), br(),
+          b('Height:'), ifelse(is.null(infos$height), 'Not found', infos$height), br())
+      )
+    )
+  })
+  ## career highlight
+  output$carir_hlt = renderUI({
+    fluidRow(
+      column(
+        width = 7, align = 'left',
+        box(
+          width = NULL, height = 320,
+          h4('Best Seller'),
+          p(b('Box Office: '), stat.dir2()$Title[which.max(stat.dir2()$`BoxOffice`)], '- ',
+            paste0('$', max(stat.dir2()$`BoxOffice`, na.rm = T) %>% prettyNum(big.mark = ',', trim = T)), br()),
+          h4('Highest rated movies'),
+          p(b('IMDb Rating: '), stat.dir2()$Title[which.max(stat.dir2()$`IMDb Rating`)], '- ', max(stat.dir2()$`IMDb Rating`, na.rm = T), br(),
+            b('Metascore: '), stat.dir2()$Title[which.max(stat.dir2()$Metascore)], '- ', max(stat.dir2()$Metascore, na.rm = T) / 10, br(),
+            b('Tomatometer: '), stat.dir2()$Title[which.max(stat.dir2()$Tomatometer)], '- ', max(stat.dir2()$Tomatometer, na.rm = T), br()),
+          h4('Lowest rated movies'),
+          p(b('IMDb Rating: '), stat.dir2()$Title[which.min(stat.dir2()$`IMDb Rating`)], '- ', min(stat.dir2()$`IMDb Rating`, na.rm = T), br(),
+            b('Metascore: '), stat.dir2()$Title[which.min(stat.dir2()$Metascore)], '- ', min(stat.dir2()$Metascore, na.rm = T) / 10, br(),
+            b('Tomatometer: '), stat.dir2()$Title[which.min(stat.dir2()$Tomatometer)], '- ', min(stat.dir2()$Tomatometer, na.rm = T), br())
+        )
+      ),
+      column(
+        width = 5, align = 'left',
+        valueBox(stat.dir2()$Title %>% unique() %>% length(), 'Movies Made', icon = icon('video-camera'), color = 'aqua', width = 12),
+        valueBox(0, 'Oscars Won', icon = icon('user-circle-o'), color = 'yellow', width = 12),
+        valueBox(0, 'Oscars Nominated', icon = icon('user-o'), color = 'green', width = 12)
+      )
+    )
+  })
+  ## plots
   output$top_bottom_dir_imdb = renderPlotly(bar_ratings(stat.dir2(), 'imdb'))
   output$timeline_dir_imdb = renderPlotly(timeline(stat.dir2(), 'imdb'))
 
@@ -129,7 +168,9 @@ function(input, output, session) {
   output$top_bottom_dir_rt = renderPlotly(bar_ratings(stat.dir2(), 'rt'))
   output$timeline_dir_rt = renderPlotly(timeline(stat.dir2(), 'rt'))
 
+################################################################################
   ## actor insights
+################################################################################
   output$img_act = renderUI({
     src = actorIDs[[input$search_actor]]$image
     src = ifelse(is.null(src), 'emptyPortrait.png', src)

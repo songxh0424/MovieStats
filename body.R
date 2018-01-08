@@ -1,4 +1,8 @@
 dbBody = dashboardBody(
+  tags$head(
+    tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
+  ),
+  ## tags$head(tags$style(HTML(".small-box {height: 95px}"))),
   fluidRow(
     column(
       width = 12, offset = 0,
@@ -128,33 +132,36 @@ dbBody = dashboardBody(
           tabName = 'director',
           fluidRow(
             column(width = 10, offset = 1, align = 'center', h1('Director Insights'), tags$br()),
-            column(
-              width = 10, offset = 1, align = 'center',
-              box(title = 'General Information', status = 'success', width = NULL,
-                  collapsible = TRUE, solidHeader = TRUE,
-                  column(width = 3, uiOutput(outputId = 'img_dir')),
-                  column(width = 5, uiOutput(outputId = 'dir_info')),
-                  column(width = 4, valueBoxOutput(outputId = 'oscar_d', width = NULL),
-                         valueBoxOutput(outputId = 'golden_globe_d', width = NULL))
-                  ),
-              box(title = 'Statistics', status = 'success', width = NULL,
-                  collapsible = TRUE, solidHeader = TRUE,
-                  tabBox(
-                    title = NULL, width = NULL,
-                    tabPanel(
-                      title = 'IMDb Rating', plotlyOutput('top_bottom_dir_imdb', height = 'auto'), plotlyOutput('timeline_dir_imdb', height = 'auto'),
-                      plotlyOutput('genre_dir_imdb')
-                    ),
-                    tabPanel(
-                      title = 'Metascore', plotlyOutput('top_bottom_dir_meta', height = 'auto'), plotlyOutput('timeline_dir_meta', height = 'auto'),
-                      plotlyOutput('genre_dir_meta')
-                    ),
-                    tabPanel(
-                      title = 'Tomatometer', plotlyOutput('top_bottom_dir_rt', height = 'auto'), plotlyOutput('timeline_dir_rt', height = 'auto'),
-                      plotlyOutput('genre_dir_rt')
-                    )
-                  )
-                  )
+            box(
+              title = 'General Information', status = 'success', width = 6, height = 390, 
+              collapsible = FALSE, solidHeader = TRUE,
+              uiOutput(outputId = 'gen_info')
+            ),
+            box(
+              title = 'Career Highlights', status = 'success', width = 6, height = 390,
+              collapsible = FALSE, solidHeader = TRUE,
+              uiOutput(outputId = 'carir_hlt')
+            )
+          ),
+          fluidRow(
+            box(
+              title = 'Statistics', status = 'success', width = 12,
+              collapsible = TRUE, solidHeader = TRUE,
+              tabBox(
+                title = NULL, width = NULL,
+                tabPanel(
+                  title = 'IMDb Rating', plotlyOutput('top_bottom_dir_imdb', height = 'auto'), plotlyOutput('timeline_dir_imdb', height = 'auto'),
+                  plotlyOutput('genre_dir_imdb')
+                ),
+                tabPanel(
+                  title = 'Metascore', plotlyOutput('top_bottom_dir_meta', height = 'auto'), plotlyOutput('timeline_dir_meta', height = 'auto'),
+                  plotlyOutput('genre_dir_meta')
+                ),
+                tabPanel(
+                  title = 'Tomatometer', plotlyOutput('top_bottom_dir_rt', height = 'auto'), plotlyOutput('timeline_dir_rt', height = 'auto'),
+                  plotlyOutput('genre_dir_rt')
+                )
+              )
             )
           )
         ),

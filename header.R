@@ -1,4 +1,4 @@
-dbHeader = dashboardHeader(title = 'MovieStats', titleWidth = 300,
+dbHeader = dashboardHeader(title = 'MovieStats', titleWidth = 270,
   tags$li(a(href = 'https://www.imdb.com',
             icon('imdb'), title = 'IMDb website',
             style = 'font-size: 20px'),
