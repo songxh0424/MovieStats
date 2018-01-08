@@ -116,6 +116,7 @@ function(input, output, session) {
     src = directorIDs[[input$search_director]]$image
     src = ifelse(is.null(src), 'emptyPortrait.png', src)
     infos = dirInfos[[input$search_director]]
+    link = sprintf('http://www.imdb.com/name/%s', directorIDs[[input$search_director]]$id)
     fluidRow(
       column(
         width = 5, align = 'left', 
@@ -126,7 +127,9 @@ function(input, output, session) {
         p(b('Age: '), ifelse(is.null(infos$bdate), 'Not found', 2018 - str_replace(infos$bdate, '^.+,', '' %>% str_trim()) %>% as.numeric()), br(),
           b('Birth Date: '), ifelse(is.null(infos$bdate), 'Not found', infos$bdate), br(),
           b('Birth Place: '), ifelse(is.null(infos$bplace), 'Not found', infos$bplace), br(),
-          b('Height:'), ifelse(is.null(infos$height), 'Not found', infos$height), br())
+          b('Height:'), ifelse(is.null(infos$height), 'Not found', infos$height), br(),
+          b('IMDb Profile: '), a(href = link, link %>% str_sub(start = 8)),
+          h4('Trade Mark'))
       )
     )
   })

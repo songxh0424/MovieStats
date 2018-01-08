@@ -31,5 +31,7 @@ package `rvest`
 ## Issues and TODOs
 
  + The OMDb API only lists the top 4 actors for each movie. Need to get more actors from IMDb.
+ + The "Best Seller" movie in director/actor pages may not be accurate since the box office of many movies are not available in the dataset. May need to scrape this information from IMDb movie pages.
+ + The "Oscars Won" and "Oscars Nominated" value boxes are merely placeholders at this moment.
  + The layout of Directors/Actors pages need to be reworked. 
  + Director images vary. Can collide with text on the right.

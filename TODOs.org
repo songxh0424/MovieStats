@@ -27,8 +27,10 @@
 **** TODO Possibly: Top writers
 ** Director page
 *** TODO Tab 1: Basic information; movies directed
-**** TODO Use [[http://www.imdb.com/xml/find?json=1&nr=1&nm=on&q=quentin+tarantino][this api]] to get actor and director's name ids
+**** DONE Use [[http://www.imdb.com/xml/find?json=1&nr=1&nm=on&q=quentin+tarantino][this api]] to get actor and director's name ids
 **** TODO Use their id to access their imdb pages and scrape relevant data
+***** DONE get general information
+***** TODO get director trademarks by scraping from IMDb: http://www.imdb.com/name/nm0000115/bio?ref_=nm_dyk_tm_sm#trademark
 *** TODO Tab 2: Statistics and plots: Yearly trend, scatter of movies, most co-oped actors
 **** TODO Most should be done using just the omdb data alone
 ** Actor page
