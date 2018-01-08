@@ -54,12 +54,29 @@ year_trend = function(dat) {
       ## ggtitle('Yearly Average Rating')
   plot_custom(p) %>% ggplotly()
 }
-
+## boxplot of genres
 box_genre = function(dat) {
   p = ggplot(dat, aes(Genre, Ratings, color = Genre)) + stat_boxplot(geom = "errorbar", width = 0.8) +
     geom_boxplot() + ylim(c(0, 100))
     ## ggtitle('Ratings by Genre')  
   (plot_custom(p, legend.pos = 'none') + theme(axis.text.x = element_text(angle = 90, hjust = 1))) %>% ggplotly()
+}
+## scatter of box office
+bo_scat_yr = function(dat) {
+  p = ggplot(dat, aes(Year, BoxOffice)) + geom_jitter(alpha = 0.5, color = '#386cb0') +
+    ylab('Box Office')
+  plot_custom(p, legend.pos = 'none') %>% ggplotly()
+}
+bo_scat_rating = function(dat, Source = c('imdb', 'meta', 'rt')) {
+  sour = match.arg(Source, c('imdb', 'meta', 'rt'))
+  tmp = switch(sour,
+               'imdb' = dat %>% rename(Ratings = `IMDb Rating`),
+               'meta' = dat %>% rename(Ratings = Metascore),
+               'rt' = dat %>% rename(Ratings = Tomatometer)
+               )
+  p = ggplot(tmp, aes(Ratings, BoxOffice)) + geom_jitter(color = '#386cb0', alpha = 0.5) +
+    ylab('Box Office')
+  plot_custom(p, legend.pos = 'none') %>% ggplotly()
 }
 
 ## data tables for rankings

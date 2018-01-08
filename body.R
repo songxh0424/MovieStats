@@ -62,8 +62,9 @@ dbBody = dashboardBody(
                     column(
                       width = 12, offset = 0, align = 'center',
                       ## yearly trend
-                      box(title = 'Yearly Average Rating', status = 'success', width = NULL,
-                          solidHeader = TRUE, collapsible = TRUE,
+                      box(
+                        title = 'Yearly Average Rating', status = 'success', width = NULL,
+                        solidHeader = TRUE, collapsible = TRUE,
                         tabBox(
                           title = NULL, width = NULL,
                           tabPanel(title = 'IMDb Rating', plotlyOutput(outputId = 'trend_imdb')),
@@ -72,13 +73,26 @@ dbBody = dashboardBody(
                         )
                       ),
                       ## boxplot by genre
-                      box(title = 'Distribution of Ratings by Genre', status = 'success', width = NULL,
-                          solidHeader = TRUE, collapsible = TRUE,
+                      box(
+                        title = 'Distribution of Ratings by Genre', status = 'success', width = NULL,
+                        solidHeader = TRUE, collapsible = TRUE,
                         tabBox(
                           title = NULL, width = NULL,
                           tabPanel(title = 'IMDb Rating', plotlyOutput(outputId = 'box_imdb', height = 500)),
                           tabPanel(title = 'Metascore', plotlyOutput(outputId = 'box_meta', height = 500)),
                           tabPanel(title = 'Tomatometer', plotlyOutput(outputId = 'box_rt', height = 500))
+                        )
+                      ),
+                      ## scatter plot of box office over time/rating
+                      box(
+                        title = 'Box Office', status = 'success', width = NULL,
+                        solidHeader = TRUE, collapsible = TRUE,
+                        tabBox(
+                          title = NULL, width = NULL,
+                          tabPanel(title = 'By Year', plotlyOutput(outputId = 'bo_year', height = 600)),
+                          tabPanel(title = 'IMDb Rating', plotlyOutput(outputId = 'bo_imdb', height = 600)),
+                          tabPanel(title = 'Metascore', plotlyOutput(outputId = 'bo_meta', height = 600)),
+                          tabPanel(title = 'Tomatometer', plotlyOutput(outputId = 'bo_rt', height = 600))
                         )
                       )
                     )

@@ -30,6 +30,10 @@ function(input, output, session) {
       summarise(`IMDb Rating` = mean(`IMDb Rating`, na.rm = TRUE),
                 Metascore = mean(Metascore, na.rm = T), Tomatometer = mean(Tomatometer, na.rm = T))
   })
+  ggdat.bo = reactive({
+    movies.all %>% filter(Year >= input$year[1] & Year <= input$year[2]) %>%
+      filter(Genre %in% input$genre) %>% group_by(imdbID) %>% filter(row_number() == 1)
+  })
   ## yearly trends plots
   ## need to figure out how to put ggdat.trend outside the render functions
   output$trend_imdb = renderPlotly({
@@ -51,6 +55,11 @@ function(input, output, session) {
   output$box_rt = renderPlotly({
     box_genre(ggdat.ratings() %>% rename(Ratings = Tomatometer))
   })
+  ## scatter of box office
+  output$bo_year = renderPlotly(bo_scat_yr(ggdat.bo()))
+  output$bo_imdb = renderPlotly(bo_scat_rating(ggdat.bo(), 'imdb'))
+  output$bo_meta = renderPlotly(bo_scat_rating(ggdat.bo(), 'meta'))
+  output$bo_rt = renderPlotly(bo_scat_rating(ggdat.bo(), 'rt'))
 
   ## ranking tables
   ## top directors
@@ -145,11 +154,11 @@ function(input, output, session) {
             paste0('$', max(stat.dir2()$`BoxOffice`, na.rm = T) %>% prettyNum(big.mark = ',', trim = T)), br()),
           h4('Highest rated movies'),
           p(b('IMDb Rating: '), stat.dir2()$Title[which.max(stat.dir2()$`IMDb Rating`)], '- ', max(stat.dir2()$`IMDb Rating`, na.rm = T), br(),
-            b('Metascore: '), stat.dir2()$Title[which.max(stat.dir2()$Metascore)], '- ', max(stat.dir2()$Metascore, na.rm = T) / 10, br(),
+            b('Metascore: '), stat.dir2()$Title[which.max(stat.dir2()$Metascore)], '- ', max(stat.dir2()$Metascore, na.rm = T), br(),
             b('Tomatometer: '), stat.dir2()$Title[which.max(stat.dir2()$Tomatometer)], '- ', max(stat.dir2()$Tomatometer, na.rm = T), br()),
           h4('Lowest rated movies'),
           p(b('IMDb Rating: '), stat.dir2()$Title[which.min(stat.dir2()$`IMDb Rating`)], '- ', min(stat.dir2()$`IMDb Rating`, na.rm = T), br(),
-            b('Metascore: '), stat.dir2()$Title[which.min(stat.dir2()$Metascore)], '- ', min(stat.dir2()$Metascore, na.rm = T) / 10, br(),
+            b('Metascore: '), stat.dir2()$Title[which.min(stat.dir2()$Metascore)], '- ', min(stat.dir2()$Metascore, na.rm = T), br(),
             b('Tomatometer: '), stat.dir2()$Title[which.min(stat.dir2()$Tomatometer)], '- ', min(stat.dir2()$Tomatometer, na.rm = T), br())
         )
       ),
