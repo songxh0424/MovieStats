@@ -49,29 +49,29 @@ getInfo = function(id) {
 
 cores = 24 
 registerDoParallel(cores = cores)
-dirInfos = lapply(1:ceiling(length(dirIDs)/500), function(i) {
-  range = (1 + 500 * (i - 1)):min((500 * i), length(dirIDs))
+dirInfos = foreach(i = 1:ceiling(length(dirIDs)/400)) %do% {
+  range = (1 + 400 * (i - 1)):min((400 * i), length(dirIDs))
   foreach(dir = dirIDs[range]) %dopar%
     tryCatch({
       if(is.null(dir)) return(NULL)
       id = dir$id
       getInfo(id)
     }, error = function(e) {print(e); return(NULL)})
-}) %>% unlist(recursive = FALSE)
+} %>% unlist(recursive = FALSE)
 names(dirInfos) = names(dirIDs)
 saveRDS(dirInfos, file = '../RData/dirInfos.rds')
 
 cores = 24 
 registerDoParallel(cores = cores)
-actInfos = lapply(1:ceiling(length(actIDs)/500), function(i) {
-  range = (1 + 500 * (i - 1)):min((500 * i), length(actIDs))
+actInfos = foreach(i = 1:ceiling(length(actIDs)/400)) %do% {
+  range = (1 + 400 * (i - 1)):min((400 * i), length(actIDs))
   actInfos = foreach(act = actIDs[range]) %dopar% 
     tryCatch({
       if(is.null(dir)) return(NULL)
       id = act$id
       getInfo(id)
     }, error = function(e) {print(e); return(NULL)})
-}) %>% unlist(recursive = FALSE)
+} %>% unlist(recursive = FALSE)
 names(actInfos) = names(actIDs)
 saveRDS(actInfos, file = '../RData/actInfos.rds')
 
