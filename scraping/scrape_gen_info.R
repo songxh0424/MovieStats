@@ -17,16 +17,34 @@ getInfo = function(id) {
   born = webHTML %>% html_node('#name-born-info')
   bdate = born %>% html_node('time') %>% html_text() %>% str_replace_all('\\s+', ' ') %>% str_trim()
   bplace = born %>% html_nodes('a') %>% last() %>% html_text() %>% str_replace_all('\\s+', ' ') %>% str_trim()
-  ## aka = webHTML %>% html_nodes('#details-akas') %>% html_text()
   height = webHTML %>% html_nodes('#details-height') %>% html_text() %>%
     str_replace_all('\\s+', '') %>% str_replace('Height:', '')
 
-  ## url_trademark = sprintf('http://www.imdb.com/name/%s/bio?ref_=nm_dyk_tm_sm#trademark', id)
+  url_trademark = sprintf('http://www.imdb.com/name/%s/bio?ref_=nm_dyk_tm_sm#trademark', id)
+  content = read_html(url_trademark) %>% html_node('#bio_content')
+  ## trade mark is listed under an h4 headline
+  h4s = content %>% html_nodes('h4') %>% html_text()
+  idx = which(str_detect(h4s, 'Trade Mark'))
+  trademark = ''
+  if(length(idx) != 0) {
+    xpath = sprintf("./div[count(preceding-sibling::h4)=%d]", idx)
+    trademark = content %>% html_nodes(xpath = xpath) %>% html_text(trim = TRUE) 
+  }
 
-  ## url_awards = sprintf('http://www.imdb.com/name/%s/awards?ref_=nm_ql_2', id)
-  ## awardHTML = read_html(url_awards)
-  ## tables = html_nodes(awardHTML, 'table')
-  return(list(bdate = bdate, bplace = bplace, height = height))
+  url_awards = sprintf('http://www.imdb.com/name/%s/awards?ref_=nm_ql_2', id)
+  content = read_html(url_awards) %>% html_node('.article.listo')
+  ## the oscar table is under an h3 headline
+  h3s = content %>% html_nodes('h3') %>% html_text()
+  idx = which(str_detect(h3s, '^Academy Awards, USA'))
+  oscar_tb = NULL
+  if(length(idx) != 0) {
+    xpath = sprintf("./table[count(preceding-sibling::h3)=%d]", idx - 1)
+    oscar_tb = (content %>% html_nodes(xpath = xpath) %>% html_table())[[1]]
+    names(oscar_tb) = c('Year', 'Result', 'Description')
+    oscar_tb = oscar_tb %>% mutate(Result = str_detect(Result, 'Won'))
+  }
+  return(list(bdate = bdate, bplace = bplace, height = height,
+              trademark = trademark, oscar = oscar_tb))
 }
 cores = 24 
 registerDoParallel(cores = cores)
@@ -50,5 +68,9 @@ actInfos = foreach(act = actIDs) %dopar%
 names(actInfos) = names(actIDs)
 saveRDS(actInfos, file = '../RData/actInfos.rds')
 
-  ## tryCatch({
-  ## })
+
+## test
+tmp = list()
+for(i in sample(1:length(dirIDs), 10)) {
+  tmp[[names(dirIDs)[i]]] = getInfo(dirIDs[[i]]$id)
+}
