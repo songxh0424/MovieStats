@@ -10,16 +10,18 @@ library(rvest)
 dirIDs = readRDS('../RData/dirIDs.rds')
 actIDs = readRDS('../RData/actIDs.rds')
 
-## get information on actors and directors
 getInfo = function(id) {
-  url = sprintf('http://www.imdb.com/name/%s/?ref_=nv_sr_1', id)
-  webHTML = read_html(url)
-  born = webHTML %>% html_node('#name-born-info')
-  bdate = born %>% html_node('time') %>% html_text() %>% str_replace_all('\\s+', ' ') %>% str_trim()
-  bplace = born %>% html_nodes('a') %>% last() %>% html_text() %>% str_replace_all('\\s+', ' ') %>% str_trim()
-  height = webHTML %>% html_nodes('#details-height') %>% html_text() %>%
-    str_replace_all('\\s+', '') %>% str_replace('Height:', '')
-  return(list(bdate = bdate, bplace = bplace, height = height))
+  url_trademark = sprintf('http://www.imdb.com/name/%s/bio?ref_=nm_dyk_tm_sm#trademark', id)
+  content = read_html(url_trademark) %>% html_node('#bio_content')
+  ## trade mark is listed under an h4 headline
+  h4s = content %>% html_nodes('h4') %>% html_text()
+  idx = which(str_detect(h4s, 'Trade Mark'))
+  trademark = ''
+  if(length(idx) != 0) {
+    xpath = sprintf("./div[count(preceding-sibling::h4)=%d]", idx)
+    trademark = content %>% html_nodes(xpath = xpath) %>% html_text(trim = TRUE) 
+  }
+  return(list(trademark = trademark))
 }
 
 cores = 24
@@ -39,7 +41,7 @@ dirInfos2 = foreach(dir = dirIDs[2001:length(dirIDs)]) %dopar%
   }, error = function(e) {print(e); return(NULL)})
 dirInfos = c(dirInfo1, dirInfos2)
 names(dirInfos) = names(dirIDs)
-saveRDS(dirInfos, file = '../RData/dirInfos.rds')
+saveRDS(dirInfos, file = '../RData/dirTM.rds')
 
 actInfos1 = foreach(act = actIDs[1:2000]) %dopar% 
   tryCatch({
@@ -61,11 +63,4 @@ actInfos3 = foreach(act = actIDs[4001:length(actIDs)]) %dopar%
   }, error = function(e) {print(e); return(NULL)})
 actInfos = c(actInfos1, actInfos2, actInfos3)
 names(actInfos) = names(actIDs)
-saveRDS(actInfos, file = '../RData/actInfos.rds')
-
-
-## test
-tmp = list()
-for(i in sample(1:length(dirIDs), 10)) {
-  tmp[[names(dirIDs)[i]]] = getInfo(dirIDs[[i]]$id)
-}
+saveRDS(actInfos, file = '../RData/actTM.rds')
