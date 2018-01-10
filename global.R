@@ -106,7 +106,7 @@ bar_ratings = function(dat, Source = c('imdb', 'meta', 'rt')) {
   p = tmp %>%
     ggplot(aes(Title, Ratings)) + geom_col(fill = "#fdb462", width = 0.7, alpha = 0.8) +
     coord_flip() + ggtitle('All Movie Ratings')
-  plot_custom(p) %>% ggplotly(height = 550)
+  plot_custom(p) %>% ggplotly(height = 500)
 }
 ## time line of films
 timeline = function(dat, Source = c('imdb', 'meta', 'rt')) {
@@ -119,7 +119,30 @@ timeline = function(dat, Source = c('imdb', 'meta', 'rt')) {
   tmp = tmp %>% arrange(Ratings) %>% filter(!is.na(Ratings))
   p = tmp %>% ggplot(aes(Year, Ratings, text = Title)) + geom_point(col = '#386cb0', alpha = 0.8) +
     ggtitle('Timeline of Movies')
-  plot_custom(p) %>% ggplotly(width = 650, height = 450)
+  plot_custom(p) %>% ggplotly(height = 400)
+}
+
+## data tables for actor/director summary statistics
+dt_sumry = function(dat) {
+  tmp = dat %>% gather(key = Source, value = Ratings, `IMDb Rating`:Tomatometer) %>%
+    group_by(Source) %>%
+    summarise(Mean = mean(Ratings, na.rm = T), Lowest = min(Ratings, na.rm = T), `Q1` = quantile(Ratings, 0.25, na.rm = T),
+              Median = median(Ratings, na.rm = T), `Q3` = quantile(Ratings, 0.75, na.rm = T), Highest = max(Ratings, na.rm = T)) %>%
+    mutate_if(is.numeric, funs(format(round(., digits = 2), nsmall = 2)))
+  tmp %>% datatable(rownames = FALSE, class = 'cell-border stripe', options = list(dom = 't', ordering = F))
+}
+## data tables for actor/director movies
+dt_movies = function(dat) {
+  tmp = dat %>% mutate(`Box Office` = BoxOffice) %>%
+    select(Title, Year, `IMDb Rating`:Tomatometer, `Box Office`) %>% 
+    rename(IMDb = `IMDb Rating`, Tomato = Tomatometer) %>%
+    replace_na(list(`Box Office` = 0)) %>% 
+    mutate(`Box Office` = paste0('$', prettyNum(`Box Office`, big.mark = ',', trim = T))) %>%
+    arrange(desc(Year)) %>% mutate(Title = sprintf('%s (%s)', Title, Year))
+  datatable(tmp[, -c(1, 3)], rownames = FALSE, class = 'cell-border stripe', filter = "top", 
+            options = list(pageLength = 10))
+## , columnDefs = list(list(orderData = 6, targets = 5), list(visible = FALSE, targets = 6))))
+## , columnDefs = list(list(width = '30px', targets = 2:5))
 }
 
 ################################################################################
@@ -136,6 +159,7 @@ library(stringr)
 library(DT)
 library(markdown)
 library(lubridate)
+
 movies.all = readRDS('./RData/movies.all.rds')
 dirs = readRDS('./RData/dirs.rds')
 acts = readRDS('./RData/acts.rds')
@@ -143,6 +167,11 @@ dirIDs = readRDS('./RData/dirIDs.rds')
 actIDs = readRDS('./RData/actIDs.rds')
 dirInfos = readRDS('./RData/dirInfos.rds')
 actInfos = readRDS('./RData/actInfos.rds')
+dirTM = readRDS('./RData/dirTM.rds')
+actTM = readRDS('./RData/actTM.rds')
+dirOscar = readRDS('./RData/dirOscar.rds')
+actOscar = readRDS('./RData/actOscar.rds')
+
 genres = c('Action', 'Adventure', 'Animation', 'Children', 'Comedy', 'Crime', 'Documentary',
            'Drama', 'Fantasy', 'Film-Noir', 'Horror', 'Musical', 'Mystery', 'Romance', 'Sci-Fi',
            'Thriller', 'War', 'Western', 'IMAX', '(no genres listed)')

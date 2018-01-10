@@ -70,9 +70,9 @@ directors = lapply(1:nrow(omdb), function(i) {
   data.frame(imdbID = rep(omdb$imdbID[i], length(dirs)), Director = dirs)
 }) %>% bind_rows() %>% filter(!is.na(Director) & Director != '')
 ## too many actors and directors, only keep the ones with a good amount of films
-actors = actors %>% group_by(Actor) %>% mutate(movies = length(unique(imdbID)))
-directors = directors %>% group_by(Director) %>% mutate(movies = length(unique(imdbID)))
-acts = actors %>% filter(movies > 3)
+actors = actors %>% group_by(Actor) %>% mutate(movies = length(unique(imdbID))) %>% arrange(desc(movies))
+directors = directors %>% group_by(Director) %>% mutate(movies = length(unique(imdbID))) %>% arrange(desc(movies))
+acts = actors %>% filter(movies > 4)
 dirs = directors %>% filter(movies > 2)
 save(movies.all, actors, directors, file = './RData/movies.all.RData')
 saveRDS(movies.all, file = './RData/movies.all.rds')

@@ -117,33 +117,40 @@ function(input, output, session) {
   stat.dir2 = reactive({
     dirs %>% filter(Director == input$search_director) %>%
       inner_join(movies.all %>% select(-Director), by = 'imdbID') %>%
-      group_by(imdbID) %>% filter(row_number() == 1) %>%
-      mutate(Title = str_sub(Title, end = 30) %>% paste0(ifelse(str_length(Title) > 30, '...', '')))
+      group_by(imdbID) %>% filter(row_number() == 1)
+      ## mutate(Title = str_sub(Title, end = 30) %>% paste0(ifelse(str_length(Title) > 30, '...', '')))
   })
   ## general infos
   output$dir_gen_info = renderUI({
     src = dirIDs[[input$search_director]]$image
     src = ifelse(is.null(src), 'emptyPortrait.png', src)
     infos = dirInfos[[input$search_director]]
+    trademark = dirTM[[input$search_director]]$trademark
+    trademark = trademark[str_length(trademark) < 100]
+    trademark = paste0('<ul style="list-style-type:circle; margin-bottom:0px; padding-left:20px">',
+                       paste0('<li>', trademark[1:min(4, length(trademark))], '</li>'), '</ul>')
     link = sprintf('http://www.imdb.com/name/%s', dirIDs[[input$search_director]]$id)
+    link2TM = sprintf('http://www.imdb.com/name/%s/bio?ref_=nm_dyk_tm_sm#trademark', dirIDs[[input$search_director]]$id)
     fluidRow(
       column(
         width = 5, align = 'left', 
         img(src = dirIDs[[input$search_director]]$image, height = 320, width = 213)
       ),
       column(
-        width = 7, align = 'left', h2(input$search_director),
+        width = 7, align = 'left', h2(a(href = link, title = 'IMDb profile page', input$search_director)),
         p(b('Age: '), ifelse(is.null(infos$bdate), 'Not found', 2018 - str_replace(infos$bdate, '^.+,', '' %>% str_trim()) %>% as.numeric()), br(),
           b('Birth Date: '), ifelse(is.null(infos$bdate), 'Not found', infos$bdate), br(),
           b('Birth Place: '), ifelse(is.null(infos$bplace), 'Not found', infos$bplace), br(),
           b('Height:'), ifelse(is.null(infos$height), 'Not found', infos$height), br(),
-          b('IMDb Profile: '), a(href = link, link %>% str_sub(start = 8)),
-          h4('Trade Mark'))
+          b('IMDb Profile: '), h4(a(href = link2TM, title = 'Trade Mark', 'Trade Mark')), HTML(trademark))
       )
     )
   })
   ## career highlight
   output$dir_carir_hlt = renderUI({
+    oscar_tb = dirOscar[[input$search_director]]$oscar
+    oscar_won = ifelse(is.null(oscar_tb), 0, sum(oscar_tb$Result))
+    oscar_nom = ifelse(is.null(oscar_tb), 0, nrow(oscar_tb))
     fluidRow(
       column(
         width = 7, align = 'left',
@@ -165,11 +172,14 @@ function(input, output, session) {
       column(
         width = 5, align = 'left',
         valueBox(stat.dir2()$Title %>% unique() %>% length(), 'Movies Made', icon = icon('video-camera'), color = 'aqua', width = 12),
-        valueBox(0, 'Oscars Won', icon = icon('user-circle-o'), color = 'yellow', width = 12),
-        valueBox(0, 'Oscars Nominated', icon = icon('user-o'), color = 'green', width = 12)
+        valueBox(oscar_won, 'Oscars Won', icon = icon('user-circle-o'), color = 'yellow', width = 12),
+        valueBox(oscar_nom, 'Oscars Nominated', icon = icon('user-o'), color = 'green', width = 12)
       )
     )
   })
+  ## statistics
+  output$dir_sumry = renderDataTable(dt_sumry(stat.dir2()))
+  output$dir_movies = renderDataTable(dt_movies(stat.dir2()))
   ## plots
   output$top_bottom_dir_imdb = renderPlotly(bar_ratings(stat.dir2(), 'imdb'))
   output$timeline_dir_imdb = renderPlotly(timeline(stat.dir2(), 'imdb'))
@@ -198,25 +208,32 @@ function(input, output, session) {
     src = actIDs[[input$search_actor]]$image
     src = ifelse(is.null(src), 'emptyPortrait.png', src)
     infos = actInfos[[input$search_actor]]
+    trademark = actTM[[input$search_actor]]$trademark
+    trademark = trademark[str_length(trademark) < 100]
+    trademark = paste0('<ul style="list-style-type:circle; margin-bottom:0px; padding-left:20px">',
+                       paste0('<li>', trademark[1:min(4, length(trademark))], '</li>'), '</ul>')
     link = sprintf('http://www.imdb.com/name/%s', actIDs[[input$search_actor]]$id)
+    link2TM = sprintf('http://www.imdb.com/name/%s/bio?ref_=nm_dyk_tm_sm#trademark', actIDs[[input$search_actor]]$id)
     fluidRow(
       column(
         width = 5, align = 'left', 
         img(src = actIDs[[input$search_actor]]$image, height = 320, width = 213)
       ),
       column(
-        width = 7, align = 'left', h2(input$search_actor),
+        width = 7, align = 'left', h2(a(href = link, title = 'IMDb profile page', input$search_actor)),
         p(b('Age: '), ifelse(is.null(infos$bdate), 'Not found', 2018 - str_replace(infos$bdate, '^.+,', '' %>% str_trim()) %>% as.numeric()), br(),
           b('Birth Date: '), ifelse(is.null(infos$bdate), 'Not found', infos$bdate), br(),
           b('Birth Place: '), ifelse(is.null(infos$bplace), 'Not found', infos$bplace), br(),
           b('Height:'), ifelse(is.null(infos$height), 'Not found', infos$height), br(),
-          b('IMDb Profile: '), a(href = link, link %>% str_sub(start = 8)),
-          h4('Trade Mark'))
+          h4(a(href = link2TM, title = 'Trade Mark', 'Trade Mark')), HTML(trademark))
       )
     )
   })
   ## career highlight
   output$act_carir_hlt = renderUI({
+    oscar_tb = actOscar[[input$search_actor]]$oscar
+    oscar_won = ifelse(is.null(oscar_tb), 0, sum(oscar_tb$Result))
+    oscar_nom = ifelse(is.null(oscar_tb), 0, nrow(oscar_tb))
     fluidRow(
       column(
         width = 7, align = 'left',
@@ -238,11 +255,15 @@ function(input, output, session) {
       column(
         width = 5, align = 'left',
         valueBox(stat.act2()$Title %>% unique() %>% length(), 'Movies Made', icon = icon('video-camera'), color = 'aqua', width = 12),
-        valueBox(0, 'Oscars Won', icon = icon('user-circle-o'), color = 'yellow', width = 12),
-        valueBox(0, 'Oscars Nominated', icon = icon('user-o'), color = 'green', width = 12)
+        valueBox(oscar_won, 'Oscars Won', icon = icon('user-circle-o'), color = 'yellow', width = 12),
+        valueBox(oscar_nom, 'Oscars Nominated', icon = icon('user-o'), color = 'green', width = 12)
       )
     )
   })
+  ## statistics
+  output$act_sumry = renderDataTable(dt_sumry(stat.act2()))
+  output$act_movies = renderDataTable(dt_movies(stat.act2()))
+  ## plots
   output$top_bottom_act_imdb = renderPlotly(bar_ratings(stat.act2(), 'imdb'))
   output$timeline_act_imdb = renderPlotly(timeline(stat.act2(), 'imdb'))
 

@@ -7,47 +7,43 @@ dbBody = dashboardBody(
     column(
       width = 12, offset = 0,
       tabItems(
-        ## Main page body 
-        tabItem(
-          tabName = 'main',
-          fluidRow(
-            ## column(width = 10, offset = 1, align = 'center', h1('Overview')),
-            column(width = 10, offset = 1, includeMarkdown('./README.md'))
-          )
-        ),
         ## Stats page body
         tabItem(
           tabName = 'stats',
           fluidRow(
             ## title
             column(width = 10, offset = 1, align = 'center', h1('Statistics and Rankings'), tags$br()),
+            ## Navigation guide
+            column(width = 10, offset = 1, 
+                   box(title = 'User Guide', status = 'warning', solidHeader = T, width = NULL,
+                       collapsible = T, collapsed = T, includeMarkdown('./Overview.md'))),
             ## filtering criteria
             column(
               width = 3,
-              box(title = 'Year released', status = 'primary', solidHeader = T, width = NULL,
+              box(title = 'Year released', status = 'info', solidHeader = T, width = NULL,
                   sliderInput(inputId = 'year', label = NULL, min = 1900, max = 2017,
                               value = c(1970, 2017))
                   ),
               ## need review count data for this filer
-              ## box(title = 'Minimum reviews', status = 'primary', solidHeader = T, width = NULL,
+              ## box(title = 'Minimum reviews', status = 'info', solidHeader = T, width = NULL,
               ##     sliderInput(inputId = 'minReview', label = NULL, min = 0, max = 300,
               ##                 value = c(0, 300))
               ##     ),
-              box(title = 'Minimum number of movies - director', status = 'primary', solidHeader = T, width = NULL,
+              box(title = 'Minimum number of movies - director', status = 'info', solidHeader = T, width = NULL,
                   sliderInput(inputId = 'min_movies_dir', label = NULL, min = 1, max = 15, value = 8)
                   ),
-              box(title = 'Minimum number of movies - actor', status = 'primary', solidHeader = T, width = NULL,
+              box(title = 'Minimum number of movies - actor', status = 'info', solidHeader = T, width = NULL,
                   sliderInput(inputId = 'min_movies_act', label = NULL, min = 1, max = 20, value = 10)
                   ),
               ## need to scrape more actors from IMDb for this filter, the OMDb API only have the top 4 actors
-              ## box(title = 'First n actors in credits', status = 'primary', solidHeader = T, width = NULL,
+              ## box(title = 'First n actors in credits', status = 'info', solidHeader = T, width = NULL,
               ##     sliderInput(inputId = 'first_n_actors', label = NULL, min = 1, max = 20, value = 10)
               ##     ),
-              box(title = 'Genres', status = 'primary', solidHeader = T, width = NULL,
+              box(title = 'Genres', status = 'info', solidHeader = T, width = NULL,
                   checkboxGroupInput(inputId = 'genre', label = NULL,
                                      choices = genres, selected = genres),
                   actionButton(inputId = 'checkAll', label = 'Check all'),
-                  actionButton(inputId = 'uncheckAll', label = 'Uncheck all')
+                  actionButton(inputId = 'uncheckAll', label = 'Clear all')
                   )
             ),
             ## results area
@@ -147,19 +143,24 @@ dbBody = dashboardBody(
           fluidRow(
             column(width = 10, offset = 1, align = 'center', h1('Director Insights'), tags$br()),
             box(
-              title = 'General Information', status = 'success', width = 6, height = 390, 
+              title = 'General Information', status = 'danger', width = 6, height = 390, 
               collapsible = FALSE, solidHeader = TRUE,
               uiOutput(outputId = 'dir_gen_info')
             ),
             box(
-              title = 'Career Highlights', status = 'success', width = 6, height = 390,
+              title = 'Career Highlights', status = 'danger', width = 6, height = 390,
               collapsible = FALSE, solidHeader = TRUE,
               uiOutput(outputId = 'dir_carir_hlt')
             )
           ),
           fluidRow(
             box(
-              title = 'Visualizations', status = 'success', width = 12,
+              title = 'Statistics', status = 'success', width = 6,
+              collapsible = TRUE, solidHeader = TRUE, 
+              h3('Summary Statistics'), hr(), dataTableOutput(outputId = 'dir_sumry'), br(), h3('All Movies'), hr(), dataTableOutput(outputId = 'dir_movies')
+            ),
+            box(
+              title = 'Visualizations', status = 'success', width = 6,
               collapsible = TRUE, solidHeader = TRUE, collapsed = TRUE,
               tabBox(
                 title = NULL, width = NULL,
@@ -185,19 +186,24 @@ dbBody = dashboardBody(
           fluidRow(
             column(width = 10, offset = 1, align = 'center', h1('Actor Insights'), tags$br()),
             box(
-              title = 'General Information', status = 'success', width = 6, height = 390, 
+              title = 'General Information', status = 'danger', width = 6, height = 390, 
               collapsible = FALSE, solidHeader = TRUE,
               uiOutput(outputId = 'act_gen_info')
             ),
             box(
-              title = 'Career Highlights', status = 'success', width = 6, height = 390,
+              title = 'Career Highlights', status = 'danger', width = 6, height = 390,
               collapsible = FALSE, solidHeader = TRUE,
               uiOutput(outputId = 'act_carir_hlt')
             )
           ),
           fluidRow(
             box(
-              title = 'Visualizations', status = 'success', width = 12,
+              title = 'Statistics', status = 'success', width = 6,
+              collapsible = TRUE, solidHeader = TRUE, 
+              h3('Summary Statistics'), hr(), dataTableOutput(outputId = 'act_sumry'), br(), h3('All Movies'), hr(), dataTableOutput(outputId = 'act_movies')
+            ),
+            box(
+              title = 'Visualizations', status = 'success', width = 6,
               collapsible = TRUE, solidHeader = TRUE, collapsed = TRUE,
               tabBox(
                 title = NULL, width = NULL,
@@ -215,6 +221,14 @@ dbBody = dashboardBody(
                 )
               )
             )
+          )
+        ),
+        ## About page body 
+        tabItem(
+          tabName = 'about',
+          fluidRow(
+            column(width = 10, offset = 1, align = 'center', h1('About'), br()),
+            column(width = 10, offset = 1, includeMarkdown('./About.md'))
           )
         )
       )

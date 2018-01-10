@@ -8,6 +8,8 @@ library(doParallel)
 library(parallel)
 library(rvest)
 load('../RData/movies.all.RData')
+dirs = readRDS('../RData/dirs.rds')
+acts = readRDS('../RData/acts.rds')
 
 ## get the name ids
 ## the api just mysterious broke, needs a new function

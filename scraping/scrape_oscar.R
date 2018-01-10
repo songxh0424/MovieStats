@@ -29,40 +29,42 @@ getInfo = function(id) {
 cores = 24
 registerDoParallel(cores = cores)
 
-dirInfos1 = foreach(dir = dirIDs[1:2000]) %dopar%
+dirInfos1 = foreach(dir = dirIDs[1:1500]) %dopar%
   tryCatch({
     if(is.null(dir)) return(NULL)
     id = dir$id
     getInfo(id)
   }, error = function(e) {print(e); return(NULL)})
-dirInfos2 = foreach(dir = dirIDs[2001:length(dirIDs)]) %dopar%
+dirInfos2 = foreach(dir = dirIDs[1501:length(dirIDs)]) %dopar%
   tryCatch({
     if(is.null(dir)) return(NULL)
     id = dir$id
     getInfo(id)
   }, error = function(e) {print(e); return(NULL)})
-dirInfos = c(dirInfo1, dirInfos2)
+dirInfos = c(dirInfos1, dirInfos2)
 names(dirInfos) = names(dirIDs)
 saveRDS(dirInfos, file = '../RData/dirOscar.rds')
 
-actInfos1 = foreach(act = actIDs[1:2000]) %dopar% 
+actInfos1 = foreach(act = actIDs[1:1500]) %dopar% 
   tryCatch({
     if(is.null(dir)) return(NULL)
     id = act$id
     getInfo(id)
   }, error = function(e) {print(e); return(NULL)})
-actInfos2 = foreach(act = actIDs[2001:4000]) %dopar% 
+save(actInfos1, file = '../RData/actOscar1.rds')
+actInfos2 = foreach(act = actIDs[1501:3000]) %dopar% 
   tryCatch({
     if(is.null(dir)) return(NULL)
     id = act$id
     getInfo(id)
   }, error = function(e) {print(e); return(NULL)})
-actInfos3 = foreach(act = actIDs[4001:length(actIDs)]) %dopar% 
+save(actInfos2, file = '../RData/actOscar2.rds')
+actInfos3 = foreach(act = actIDs[3001:length(actIDs)]) %dopar% 
   tryCatch({
     if(is.null(dir)) return(NULL)
     id = act$id
     getInfo(id)
   }, error = function(e) {print(e); return(NULL)})
-actInfos = c(actInfos1, actInfos2, actInfos3)
+actInfos = c(readRDS('../RData/actOscar1.rds'), readRDS('../RData/actOscar2.rds'), actInfos3)
 names(actInfos) = names(actIDs)
 saveRDS(actInfos, file = '../RData/actOscar.rds')

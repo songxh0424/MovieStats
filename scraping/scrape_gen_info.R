@@ -37,7 +37,7 @@ dirInfos2 = foreach(dir = dirIDs[2001:length(dirIDs)]) %dopar%
     id = dir$id
     getInfo(id)
   }, error = function(e) {print(e); return(NULL)})
-dirInfos = c(dirInfo1, dirInfos2)
+dirInfos = c(dirInfos1, dirInfos2)
 names(dirInfos) = names(dirIDs)
 saveRDS(dirInfos, file = '../RData/dirInfos.rds')
 
@@ -65,7 +65,7 @@ saveRDS(actInfos, file = '../RData/actInfos.rds')
 
 
 ## test
-tmp = list()
-for(i in sample(1:length(dirIDs), 10)) {
-  tmp[[names(dirIDs)[i]]] = getInfo(dirIDs[[i]]$id)
-}
+## tmp = list()
+## for(i in sample(1:length(dirIDs), 10)) {
+##   tmp[[names(dirIDs)[i]]] = getInfo(dirIDs[[i]]$id)
+## }
