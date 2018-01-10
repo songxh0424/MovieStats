@@ -142,7 +142,7 @@ function(input, output, session) {
           b('Birth Date: '), ifelse(is.null(infos$bdate), 'Not found', infos$bdate), br(),
           b('Birth Place: '), ifelse(is.null(infos$bplace), 'Not found', infos$bplace), br(),
           b('Height:'), ifelse(is.null(infos$height), 'Not found', infos$height), br(),
-          b('IMDb Profile: '), h4(a(href = link2TM, title = 'Trade Mark', 'Trade Mark')), HTML(trademark))
+          h4(a(href = link2TM, title = 'Trade Mark', 'Trade Mark')), HTML(trademark))
       )
     )
   })
@@ -200,8 +200,7 @@ function(input, output, session) {
   stat.act2 = reactive({
     acts %>% filter(Actor == input$search_actor) %>%
       inner_join(movies.all %>% select(-Actors), by = 'imdbID') %>%
-      group_by(imdbID) %>% filter(row_number() == 1) %>%
-      mutate(Title = str_sub(Title, end = 30) %>% paste0(ifelse(str_length(Title) > 30, '...', '')))
+      group_by(imdbID) %>% filter(row_number() == 1)
   })
   ## general infos
   output$act_gen_info = renderUI({
