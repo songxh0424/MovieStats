@@ -72,18 +72,9 @@ function(input, output, session) {
                 Metascore = mean(Metascore, na.rm = T) %>% round(2),
                 Tomatometer = mean(Tomatometer, na.rm = T) %>% round(2))
   })
-  output$top_dir_imdb = renderDataTable({
-    dat = dat.directors() %>% rename(Ratings = `IMDb Rating`)
-    ranking(dat, 'dir', input$min_movies_dir)
-  })
-  output$top_dir_meta = renderDataTable({
-    dat = dat.directors() %>% rename(Ratings = Metascore)
-    ranking(dat, 'dir', input$min_movies_dir)
-  })
-  output$top_dir_rt = renderDataTable({
-    dat = dat.directors() %>% rename(Ratings = Tomatometer)
-    ranking(dat, 'dir', input$min_movies_dir)
-  })
+  output$top_dir_imdb = renderDataTable(ranking(dat.directors(), 'dir', input$min_movies_dir, 'IMDb Rating'))
+  output$top_dir_meta = renderDataTable(ranking(dat.directors(), 'dir', input$min_movies_dir, 'Metascore'))
+  output$top_dir_rt = renderDataTable(ranking(dat.directors(), 'dir', input$min_movies_dir, 'Tomatometer'))
   ## top actors 
   dat.actors = reactive({
     movies.all %>% filter(Year >= input$year[1] & Year <= input$year[2]) %>%
@@ -94,18 +85,23 @@ function(input, output, session) {
                 Metascore = mean(Metascore, na.rm = T) %>% round(2),
                 Tomatometer = mean(Tomatometer, na.rm = T) %>% round(2))
   })
-  output$top_act_imdb = renderDataTable({
-    dat = dat.actors() %>% rename(Ratings = `IMDb Rating`)
-    ranking(dat, 'act', input$min_movies_act)
+  output$top_act_imdb = renderDataTable(ranking(dat.actors(), 'act', input$min_movies_act, 'IMDb Rating'))
+  output$top_act_meta = renderDataTable(ranking(dat.actors(), 'act', input$min_movies_act, 'Metascore'))
+  output$top_act_rt = renderDataTable(ranking(dat.actors(), 'act', input$min_movies_act, 'Tomatometer'))
+  ## top duos
+  dat.duos = reactive({
+    movies.all %>% filter(Year >= input$year[1] & Year <= input$year[2]) %>%
+      filter(Genre %in% input$genre) %>% group_by(imdbID) %>%
+      filter(row_number() == 1) %>% select(-c(Actors, Director)) %>%
+      inner_join(acts[, -3], by = 'imdbID') %>% inner_join(dirs[, -3], by = 'imdbID') %>%
+      group_by(Director, Actor) %>%
+      summarise(Movies = n(), `IMDb Rating` = mean(`IMDb Rating`, na.rm = TRUE) %>% round(2),
+                Metascore = mean(Metascore, na.rm = T) %>% round(2),
+                Tomatometer = mean(Tomatometer, na.rm = T) %>% round(2))
   })
-  output$top_act_meta = renderDataTable({
-    dat = dat.actors() %>% rename(Ratings = Metascore)
-    ranking(dat, 'act', input$min_movies_act)
-  })
-  output$top_act_rt = renderDataTable({
-    dat = dat.actors() %>% rename(Ratings = Tomatometer)
-    ranking(dat, 'act', input$min_movies_act)
-  })
+  output$top_duo_imdb = renderDataTable(ranking(dat.duos(), 'duo', input$min_movies_duo, 'IMDb Rating'))
+  output$top_duo_meta = renderDataTable(ranking(dat.duos(), 'duo', input$min_movies_duo, 'Metascore'))
+  output$top_duo_rt = renderDataTable(ranking(dat.duos(), 'duo', input$min_movies_duo, 'Tomatometer'))
 
 ################################################################################
   ## director insights
@@ -118,7 +114,6 @@ function(input, output, session) {
     dirs %>% filter(Director == input$search_director) %>%
       inner_join(movies.all %>% select(-Director), by = 'imdbID') %>%
       group_by(imdbID) %>% filter(row_number() == 1)
-      ## mutate(Title = str_sub(Title, end = 30) %>% paste0(ifelse(str_length(Title) > 30, '...', '')))
   })
   ## general infos
   output$dir_gen_info = renderUI({
@@ -180,15 +175,18 @@ function(input, output, session) {
   ## statistics
   output$dir_sumry = renderDataTable(dt_sumry(stat.dir2()))
   output$dir_movies = renderDataTable(dt_movies(stat.dir2()))
+  ## data for finding collaborators
+  dat_dir_act = reactive({
+    tmp = movies.all %>% group_by(imdbID) %>%
+      filter(row_number() == 1) %>% select(-c(Actors, Director)) %>%
+      inner_join(dirs[, -3] %>% filter(Director == input$search_director), by = 'imdbID') %>%
+      inner_join(acts[, -3], by = 'imdbID') %>% ft_most_collab(input$search_director, 'act')
+  })
+  output$dir_collab = renderUI(h4(sprintf('Most Frequent Collaborator(Actor) - %s', dat_dir_act()$collab)))
+  output$dir_ft_most_collab = renderFormattable(dat_dir_act()$ft)
   ## plots
-  output$top_bottom_dir_imdb = renderPlotly(bar_ratings(stat.dir2(), 'imdb'))
-  output$timeline_dir_imdb = renderPlotly(timeline(stat.dir2(), 'imdb'))
-
-  output$top_bottom_dir_meta = renderPlotly(bar_ratings(stat.dir2(), 'meta'))
-  output$timeline_dir_meta = renderPlotly(timeline(stat.dir2(), 'meta'))
-
-  output$top_bottom_dir_rt = renderPlotly(bar_ratings(stat.dir2(), 'rt'))
-  output$timeline_dir_rt = renderPlotly(timeline(stat.dir2(), 'rt'))
+  output$dir_movies_bar = renderPlotly(bar_ratings(stat.dir2(), input$dir_radio))
+  output$dir_timeline = renderPlotly(timeline(stat.dir2(), input$dir_radio))
 
 ################################################################################
   ## actor insights
@@ -262,13 +260,24 @@ function(input, output, session) {
   ## statistics
   output$act_sumry = renderDataTable(dt_sumry(stat.act2()))
   output$act_movies = renderDataTable(dt_movies(stat.act2()))
+  ## data for finding collaborators
+  dat_act_dir = reactive({
+    tmp = movies.all %>% group_by(imdbID) %>%
+      filter(row_number() == 1) %>% select(-c(Actors, Director)) %>%
+      inner_join(acts[, -3] %>% filter(Actor == input$search_actor), by = 'imdbID') %>%
+      inner_join(dirs[, -3], by = 'imdbID') %>% ft_most_collab(input$search_actor, 'dir')
+  })
+  output$act_collab_dir = renderUI(h4(sprintf('Most Frequent Collaborator(Director) - %s', dat_act_dir()$collab)))
+  output$act_ft_most_collab_dir = renderFormattable(dat_act_dir()$ft)
+  dat_act_act = reactive({
+    tmp = movies.all %>% group_by(imdbID) %>%
+      filter(row_number() == 1) %>% select(-c(Actors, Director)) %>%
+      inner_join(acts[, -3] %>% filter(Actor == input$search_actor), by = 'imdbID') %>% select(-Actor) %>%
+      inner_join(acts[, -3], by = 'imdbID') %>% ft_most_collab(input$search_actor, 'act')
+  })
+  output$act_collab_act = renderUI(h4(sprintf('Most Frequent Collaborator(Actor) - %s', dat_act_act()$collab)))
+  output$act_ft_most_collab_act = renderFormattable(dat_act_act()$ft)
   ## plots
-  output$top_bottom_act_imdb = renderPlotly(bar_ratings(stat.act2(), 'imdb'))
-  output$timeline_act_imdb = renderPlotly(timeline(stat.act2(), 'imdb'))
-
-  output$top_bottom_act_meta = renderPlotly(bar_ratings(stat.act2(), 'meta'))
-  output$timeline_act_meta = renderPlotly(timeline(stat.act2(), 'meta'))
-
-  output$top_bottom_act_rt = renderPlotly(bar_ratings(stat.act2(), 'rt'))
-  output$timeline_act_rt = renderPlotly(timeline(stat.act2(), 'rt'))
+  output$act_movies_bar = renderPlotly(bar_ratings(stat.act2(), input$act_radio))
+  output$act_timeline = renderPlotly(timeline(stat.act2(), input$act_radio))
 }

@@ -7,7 +7,9 @@ dbBody = dashboardBody(
     column(
       width = 12, offset = 0,
       tabItems(
+################################################################################
         ## Stats page body
+################################################################################
         tabItem(
           tabName = 'stats',
           fluidRow(
@@ -35,6 +37,9 @@ dbBody = dashboardBody(
               box(title = 'Minimum number of movies - actor', status = 'info', solidHeader = T, width = NULL,
                   sliderInput(inputId = 'min_movies_act', label = NULL, min = 1, max = 20, value = 10)
                   ),
+              box(title = 'Minimum number of movies - duo', status = 'info', solidHeader = T, width = NULL,
+                  sliderInput(inputId = 'min_movies_duo', label = NULL, min = 1, max = 8, value = 5)
+                  ),
               ## need to scrape more actors from IMDb for this filter, the OMDb API only have the top 4 actors
               ## box(title = 'First n actors in credits', status = 'info', solidHeader = T, width = NULL,
               ##     sliderInput(inputId = 'first_n_actors', label = NULL, min = 1, max = 20, value = 10)
@@ -51,7 +56,9 @@ dbBody = dashboardBody(
               width = 9, align = 'center',
               tabBox(
                 title = 'Visualizations and Rankings', width = NULL,
+################################################################################
                 ## plotting area
+################################################################################
                 tabPanel(
                   title = 'Visualizations',
                   fluidRow(
@@ -94,7 +101,9 @@ dbBody = dashboardBody(
                     )
                   )
                 ),
+################################################################################
                 ## rankings
+################################################################################
                 tabPanel(
                   title = 'Director/Actor Rankings',
                   fluidRow(
@@ -137,7 +146,9 @@ dbBody = dashboardBody(
             )
           )
         ),
+################################################################################
         ## Director insights page
+################################################################################
         tabItem(
           tabName = 'director',
           fluidRow(
@@ -157,30 +168,38 @@ dbBody = dashboardBody(
             box(
               title = 'Statistics', status = 'success', width = 6,
               collapsible = TRUE, solidHeader = TRUE, 
-              h3('Summary Statistics'), hr(), dataTableOutput(outputId = 'dir_sumry'), br(), h3('All Movies'), hr(), dataTableOutput(outputId = 'dir_movies')
-            ),
-            box(
-              title = 'Visualizations', status = 'success', width = 6,
-              collapsible = TRUE, solidHeader = TRUE, collapsed = TRUE,
               tabBox(
                 title = NULL, width = NULL,
                 tabPanel(
-                  title = 'IMDb Rating', plotlyOutput('top_bottom_dir_imdb', height = 'auto'), plotlyOutput('timeline_dir_imdb', height = 'auto'),
-                  plotlyOutput('genre_dir_imdb')
+                  title = 'Movies', h3('Summary Statistics'), hr(), dataTableOutput(outputId = 'dir_sumry'), br(),
+                  h3('All Movies'), hr(), dataTableOutput(outputId = 'dir_movies')
                 ),
                 tabPanel(
-                  title = 'Metascore', plotlyOutput('top_bottom_dir_meta', height = 'auto'), plotlyOutput('timeline_dir_meta', height = 'auto'),
-                  plotlyOutput('genre_dir_meta')
-                ),
-                tabPanel(
-                  title = 'Tomatometer', plotlyOutput('top_bottom_dir_rt', height = 'auto'), plotlyOutput('timeline_dir_rt', height = 'auto'),
-                  plotlyOutput('genre_dir_rt')
+                  title = 'Collaborations',
+                  box(width = NULL, uiOutput(outputId = 'dir_collab'), hr(), formattableOutput(outputId = 'dir_ft_most_collab'))
                 )
+              )
+            ),
+            box(
+              title = 'Visualizations', status = 'success', width = 6,
+              collapsible = TRUE, solidHeader = TRUE, collapsed = FALSE,
+              tabBox(
+                title = NULL, width = NULL,
+                tabPanel(
+                  title = 'Ratings', 
+                  radioButtons('dir_radio', label = 'Select rating source: ', choices = c('IMDb Rating', 'Metascore', 'Tomatometer'),
+                               selected = 'IMDb Rating', inline = T),
+                  box(width = NULL, h3('Movie Ratings'), hr(), plotlyOutput('dir_movies_bar')), 
+                  box(width = NULL, h3('Movie Timeline'), hr(), plotlyOutput('dir_timeline'))
+                ),
+                tabPanel(title = 'Genres', plotlyOutput('dir_genre'))
               )
             )
           )
         ),
+################################################################################
         ## Actor insights page
+################################################################################
         tabItem(
           tabName = 'actor',
           fluidRow(
@@ -200,30 +219,39 @@ dbBody = dashboardBody(
             box(
               title = 'Statistics', status = 'success', width = 6,
               collapsible = TRUE, solidHeader = TRUE, 
-              h3('Summary Statistics'), hr(), dataTableOutput(outputId = 'act_sumry'), br(), h3('All Movies'), hr(), dataTableOutput(outputId = 'act_movies')
-            ),
-            box(
-              title = 'Visualizations', status = 'success', width = 6,
-              collapsible = TRUE, solidHeader = TRUE, collapsed = TRUE,
               tabBox(
                 title = NULL, width = NULL,
                 tabPanel(
-                  title = 'IMDb Rating', plotlyOutput('top_bottom_act_imdb', height = 'auto'), plotlyOutput('timeline_act_imdb', height = 'auto'),
-                  plotlyOutput('genre_act_imdb')
+                  title = 'Movies', h3('Summary Statistics'), hr(), dataTableOutput(outputId = 'act_sumry'), br(),
+                  h3('All Movies'), hr(), dataTableOutput(outputId = 'act_movies')
                 ),
                 tabPanel(
-                  title = 'Metascore', plotlyOutput('top_bottom_act_meta', height = 'auto'), plotlyOutput('timeline_act_meta', height = 'auto'),
-                  plotlyOutput('genre_act_meta')
-                ),
-                tabPanel(
-                  title = 'Tomatometer', plotlyOutput('top_bottom_act_rt', height = 'auto'), plotlyOutput('timeline_act_rt', height = 'auto'),
-                  plotlyOutput('genre_act_rt')
+                  title = 'Collaborations',
+                  box(width = NULL, uiOutput(outputId = 'act_collab_dir'), hr(), formattableOutput(outputId = 'act_ft_most_collab_dir')),
+                  box(width = NULL, uiOutput(outputId = 'act_collab_act'), hr(), formattableOutput(outputId = 'act_ft_most_collab_act'))
                 )
+              )
+            ),
+            box(
+              title = 'Visualizations', status = 'success', width = 6,
+              collapsible = TRUE, solidHeader = TRUE, collapsed = FALSE,
+              tabBox(
+                title = NULL, width = NULL,
+                tabPanel(
+                  title = 'Ratings',
+                  radioButtons('act_radio', label = 'Select rating source', choices = c('IMDb Rating', 'Metascore', 'Tomatometer'),
+                               selected = 'IMDb Rating', inline = T),
+                  box(width = NULL, h3('Movie Ratings'), hr(), plotlyOutput('act_movies_bar')),
+                  box(width = NULL, h3('Movie Timeline'), hr(), plotlyOutput('act_timeline'))
+                ),
+                tabPanel(title = 'Genres')
               )
             )
           )
         ),
+################################################################################
         ## About page body 
+################################################################################
         tabItem(
           tabName = 'about',
           fluidRow(
