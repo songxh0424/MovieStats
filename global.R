@@ -162,7 +162,8 @@ ft_most_collab = function(dat, person, collab_type = c('dir', 'act')) {
     select(Collab, Title, `IMDb Rating`:Tomatometer, `Box Office`)
   collab = tmp$Collab[1]
   ft = formattable(tmp[, -1], list(
-    Metascore = formatter('span', style = x ~ style(color = ifelse(x > 60, 'green', ifelse(x > 39, '#fdb462', 'red'))))
+    Metascore = formatter('span', style = x ~ style(color = ifelse(x > 60, 'green', ifelse(x > 39, '#fdb462', 'red')))),
+    area(col = c(`IMDb Rating`, Tomatometer)) ~ normalize_bar('pink', 0.2)
   ))
   return(list(collab = collab, ft = ft))
 }
