@@ -37,3 +37,5 @@ package `rvest`
  + The OMDb API only lists the top 4 actors for each movie. Need to get more actors from IMDb.
  + The "Best Seller" movie in director/actor pages may not be accurate since the box office of many movies are not available in the dataset. May need to scrape this information from IMDb movie pages.
  + Consider switch from using DT datatable to formattable, at least the summary table should use formattable.
+ + Figure out how to make the Box Office sort properly on Directors/Actors pages.
+ + The bar chart of Francis Ford Coppola has an error: factor level [24] is duplicated. So is Al Pacino.
