@@ -13,16 +13,16 @@
 ** Title bar
 *** DONE IMDb link
 *** DONE Github repo
-*** TODO About: maybe put on main page instead
 * Pages
 ** Main page
 ** Statistics and rankings
 *** DONE Tab 1: Visualizations
 **** TODO Add number of movies in each year to the tooltips of trend plot
+**** TODO Add a plot for the trend of genre distributions(percentages of each genre, minus Drama perhaps), select only 8 to 12 genres
 *** TODO Tab 2: Rankings
 **** DONE Top actors
 **** DONE Top directors
-**** TODO Top director-actor duo
+**** DONE Top director-actor duo
 **** TODO Top actor duo
 **** TODO Possibly: Top writers
 ** Director page
@@ -31,22 +31,28 @@
 **** DONE Use their id to access their imdb pages and scrape relevant data
 ***** DONE get general information
 ***** DONE get director trademarks by scraping from IMDb: http://www.imdb.com/name/nm0000115/bio?ref_=nm_dyk_tm_sm#trademark
-*** TODO Tab 2: Statistics and plots: Yearly trend, scatter of movies, most co-oped actors
-**** TODO Most should be done using just the omdb data alone
+*** DONE Tab 2: Statistics and plots: Yearly trend, scatter of movies, most co-oped actors
+**** DONE Most should be done using just the omdb data alone
 ** Actor page
 *** DONE Tab 1: Basic information; movies played 
 **** DONE Mug shot
 **** DONE Name, birth date, height, trademark, movies played, total box office
 **** DONE link to IMDb page
 **** DONE info/value boxes of the number of awards
-*** TODO Tab 2: Statistics and plots: Yearly trend, scatter of movies, most co-oped actors/directors
+*** DONE Tab 2: Statistics and plots: Yearly trend, scatter of movies, most co-oped actors/directors
 **** [Discard] 3 or 5 highest and lowest rated films
 **** DONE Scatter plot of movies ratings timeline
-**** [On hold] Bar chart of movie genres
-**** TODO Most co-oped actors/directors, can be info/value boxes
+**** DONE Bar chart of movie genres
+**** DONE Most co-oped actors/directors, can be info/value boxes
+** Fun Facts page
+*** TODO Unlucky Oscar nominees
+*** TODO Oscar's Favorites
+** About page
+*** TODO Add used packages
 
 * Clean Up
 ** Main Page
 ** Statistics and Rankings
 ** Directors/Actors
-*** Result of max() can be -Inf, min() can be Inf if the length of the vector is 0, also mean can be NaN when this happens.
+*** TODO Result of max() can be -Inf, min() can be Inf if the length of the vector is 0, also mean can be NaN when this happens.
+*** TODO Make the Box Office sort properly on Directors/Actors pages.(formattable might be the answer)
