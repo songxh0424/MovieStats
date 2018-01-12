@@ -9,6 +9,7 @@ dbSidebar = dashboardSidebar(
     ## too many actors seem to slow down the page significantly, maybe include only most popular ones
     selectizeInput(inputId = 'search_actor', label = NULL, choices = unique(acts$Actor), selected = 'Leonardo DiCaprio',
                    options = list(maxOptions = 5, placeholder = 'Input an actor\'s name')),
+    menuItem('Fun Facts', tabName = 'fun', icon = icon('commenting')),
     hr(), menuItem('About', tabName = 'about', icon = icon('info-circle')),
     tags$head(tags$script(HTML('$(document).ready(function() {$(".treeview-menu").css("display", "block");})')))
   )

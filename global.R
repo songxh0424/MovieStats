@@ -97,35 +97,6 @@ ranking = function(dat, type = c('dir', 'act', 'duo'), thres, Source = c('IMDb R
   datatable(tmp[1:100, ], class = 'cell-border stripe', options = list(pageLength = 10), filter = "top")
 }
 
-## plots for actor/director insights
-## bar chart of ratings
-bar_ratings = function(dat, Source = c('IMDb Rating', 'Metascore', 'Tomatometer')) {
-  sour = match.arg(Source, c('IMDb Rating', 'Metascore', 'Tomatometer'))
-  tmp = switch(sour,
-               'IMDb Rating' = dat %>% rename(Ratings = `IMDb Rating`),
-               'Metascore' = dat %>% rename(Ratings = Metascore),
-               'Tomatometer' = dat %>% rename(Ratings = Tomatometer)
-               )
-  tmp = tmp %>% arrange(Ratings) %>% filter(!is.na(Ratings)) %>%
-    mutate(Title = str_sub(Title, end = 20) %>% paste0(ifelse(str_length(Title) > 20, '...', '')))
-  tmp$Title = factor(tmp$Title %>% as.character(), levels = tmp$Title)
-  p = tmp %>% ggplot(aes(Title, Ratings)) + geom_col(fill = "#fdb462", width = 0.7, alpha = 0.8) +
-    coord_flip() + ylab(sour)
-  plot_custom(p) %>% ggplotly(height = 400) %>% layout(margin = list(t = 20))
-}
-## time line of films
-timeline = function(dat, Source = c('IMDb Rating', 'Metascore', 'Tomatometer')) {
-  sour = match.arg(Source, c('IMDb Rating', 'Metascore', 'Tomatometer'))
-  tmp = switch(sour,
-               'IMDb Rating' = dat %>% rename(Ratings = `IMDb Rating`),
-               'Metascore' = dat %>% rename(Ratings = Metascore),
-               'Tomatometer' = dat %>% rename(Ratings = Tomatometer)
-               )
-  tmp = tmp %>% arrange(Ratings) %>% filter(!is.na(Ratings))
-  p = tmp %>% ggplot(aes(Year, Ratings, text = Title)) + geom_point(col = 'slategrey', alpha = 0.8) + ylab(sour)
-  plot_custom(p) %>% ggplotly(height = 400) %>% layout(margin = list(t = 20))
-}
-
 ## data tables for actor/director summary statistics
 dt_sumry = function(dat) {
   tmp = dat %>% gather(key = Source, value = Ratings, `IMDb Rating`:Tomatometer) %>%
@@ -157,15 +128,57 @@ ft_most_collab = function(dat, person, collab_type = c('dir', 'act')) {
       ungroup() %>% arrange(desc(Movies)) %>% filter(Director == first(Director)) %>% rename(Collab = Director),
   ) %>% mutate(`Box Office` = BoxOffice) %>% replace_na(list(`Box Office` = 0)) %>%
     mutate(`Box Office` = paste0('$', prettyNum(`Box Office`, big.mark = ',', trim = T))) %>%
-    mutate(Title = str_sub(Title, end = 20) %>% paste0(ifelse(str_length(Title) > 20, '...', ''))) %>%
+    mutate(Title = str_sub(Title, end = 25) %>% paste0(ifelse(str_length(Title) > 25, '...', ''))) %>%
     mutate(Title = sprintf('%s(%s)', Title, Year)) %>% arrange(desc(Year)) %>%
     select(Collab, Title, `IMDb Rating`:Tomatometer, `Box Office`)
   collab = tmp$Collab[1]
-  ft = formattable(tmp[, -1], list(
-    Metascore = formatter('span', style = x ~ style(color = ifelse(x > 60, 'green', ifelse(x > 39, '#fdb462', 'red')))),
-    area(col = c(`IMDb Rating`, Tomatometer)) ~ normalize_bar('pink', 0.2)
-  ))
+  if(all(is.na(tmp$Metascore))) {
+    ft = formattable(tmp[, -1], list(area(col = c(`IMDb Rating`, Tomatometer)) ~ normalize_bar('pink', 0.2)))
+  } else {
+    ft = formattable(tmp[, -1], list(
+      Metascore = formatter('span', style = x ~ style(color = ifelse(is.na(x), 'grey', ifelse(x > 60, 'green', ifelse(x > 39, '#fdb462', 'red'))))),
+      area(col = c(`IMDb Rating`, Tomatometer)) ~ normalize_bar('pink', 0.2)
+    ))
+  }
   return(list(collab = collab, ft = ft))
+}
+
+## plots for actor/director insights
+## bar chart of ratings
+bar_ratings = function(dat, Source = c('IMDb Rating', 'Metascore', 'Tomatometer')) {
+  sour = match.arg(Source, c('IMDb Rating', 'Metascore', 'Tomatometer'))
+  tmp = switch(sour,
+               'IMDb Rating' = dat %>% rename(Ratings = `IMDb Rating`),
+               'Metascore' = dat %>% rename(Ratings = Metascore),
+               'Tomatometer' = dat %>% rename(Ratings = Tomatometer)
+               )
+  tmp = tmp %>% arrange(Ratings) %>% filter(!is.na(Ratings)) %>%
+    mutate(Title = str_sub(Title, end = 25) %>% paste0(ifelse(str_length(Title) > 25, '...', '')))
+  tmp$Title = factor(tmp$Title %>% as.character(), levels = tmp$Title)
+  p = tmp %>% ggplot(aes(Title, Ratings)) + geom_col(fill = "#fdb462", width = 0.7, alpha = 0.8) +
+    coord_flip() + ylab(sour)
+  plot_custom(p) %>% ggplotly(height = 400) %>% layout(margin = list(t = 20))
+}
+## time line of films
+timeline = function(dat, Source = c('IMDb Rating', 'Metascore', 'Tomatometer')) {
+  sour = match.arg(Source, c('IMDb Rating', 'Metascore', 'Tomatometer'))
+  tmp = switch(sour,
+               'IMDb Rating' = dat %>% rename(Ratings = `IMDb Rating`),
+               'Metascore' = dat %>% rename(Ratings = Metascore),
+               'Tomatometer' = dat %>% rename(Ratings = Tomatometer)
+               )
+  tmp = tmp %>% arrange(Ratings) %>% filter(!is.na(Ratings))
+  p = tmp %>% ggplot(aes(Year, Ratings, text = Title)) + geom_point(col = 'slategrey', alpha = 0.8) + ylab(sour)
+  plot_custom(p) %>% ggplotly(height = 400) %>% layout(margin = list(t = 20))
+}
+## lolipop chart of movie genres
+loli_genres = function(dat) {
+  tmp = dat %>% group_by(Genre) %>% summarise(Movies = n(), `IMDb Rating` = mean(`IMDb Rating`, na.rm = T)) %>%
+    arrange(Movies) %>% mutate(Genre = factor(Genre, levels = Genre)) %>% filter(Genre != 'Drama')
+  p = tmp %>% ggplot(aes(Genre, Movies, color = Genre)) +
+    geom_segment(aes(y = 0, x = Genre, yend = Movies, xend = Genre), color = 'grey78') +
+    geom_point(aes(size = `IMDb Rating`)) + coord_flip() + scale_size_continuous(limits = c(50, 92))
+  plot_custom(p, legend.pos = 'none') %>% ggplotly(height = 400) %>% layout(margin = list(t = 20))
 }
 
 ################################################################################
@@ -204,4 +217,5 @@ source('sidebar.R')
 source('body.R')
 b = tags$b
 br = tags$br
+bq = tags$blockquote
 

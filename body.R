@@ -14,7 +14,7 @@ dbBody = dashboardBody(
           tabName = 'stats',
           fluidRow(
             ## title
-            column(width = 10, offset = 1, align = 'center', h1('Statistics and Rankings'), tags$br()),
+            column(width = 10, offset = 1, align = 'center', h1(tags$i('Statistics and Rankings')), tags$br()),
             ## Navigation guide
             column(width = 10, offset = 1, 
                    box(title = 'User Guide', status = 'warning', solidHeader = T, width = NULL,
@@ -152,7 +152,7 @@ dbBody = dashboardBody(
         tabItem(
           tabName = 'director',
           fluidRow(
-            column(width = 10, offset = 1, align = 'center', h1('Director Insights'), tags$br()),
+            column(width = 10, offset = 1, align = 'center', h1(tags$i('Director Insights')), tags$br()),
             box(
               title = 'General Information', status = 'danger', width = 6, height = 390, 
               collapsible = FALSE, solidHeader = TRUE,
@@ -192,7 +192,10 @@ dbBody = dashboardBody(
                   box(width = NULL, h3('Movie Ratings'), hr(), plotlyOutput('dir_movies_bar')), 
                   box(width = NULL, h3('Movie Timeline'), hr(), plotlyOutput('dir_timeline'))
                 ),
-                tabPanel(title = 'Genres', plotlyOutput('dir_genre'))
+                tabPanel(
+                  title = 'Genres',
+                  box(width = NULL, h3('Genres Played in', hr(), plotlyOutput('dir_genres_loli')))
+                )
               )
             )
           )
@@ -203,7 +206,7 @@ dbBody = dashboardBody(
         tabItem(
           tabName = 'actor',
           fluidRow(
-            column(width = 10, offset = 1, align = 'center', h1('Actor Insights'), tags$br()),
+            column(width = 10, offset = 1, align = 'center', h1(tags$i('Actor Insights')), tags$br()),
             box(
               title = 'General Information', status = 'danger', width = 6, height = 390, 
               collapsible = FALSE, solidHeader = TRUE,
@@ -244,7 +247,41 @@ dbBody = dashboardBody(
                   box(width = NULL, h3('Movie Ratings'), hr(), plotlyOutput('act_movies_bar')),
                   box(width = NULL, h3('Movie Timeline'), hr(), plotlyOutput('act_timeline'))
                 ),
-                tabPanel(title = 'Genres')
+                tabPanel(
+                  title = 'Genres',
+                  box(width = NULL, h3('Genres Played in', hr(), plotlyOutput('act_genres_loli')))
+                )
+              )
+            )
+          )
+        ),
+################################################################################
+        ## Fun facts page
+################################################################################
+        tabItem(
+          tabName = 'fun',
+          fluidRow(
+            column(width = 10, offset = 1, align = 'center', h1(tags$i('Fun Facts')), br()),
+            column(
+              width = 6,
+              box(
+                title = 'Unlucky Oscar Nominees', width = NULL, status = 'success', solidHeader = TRUE, collapsible = TRUE,
+                tabBox(
+                  width = NULL,
+                  tabPanel(title = 'Director', uiOutput(outputId = 'dir_unlucky'), dataTableOutput(outputId = 'dt_dir_unlucky')),
+                  tabPanel(title = 'Actor', uiOutput(outputId = 'act_unlucky'), dataTableOutput(outputId = 'dt_act_unlucky'))
+                )
+              )
+            ),
+            column(
+              width = 6,
+              box(
+                title = 'Oscar\'s Favorites', width = NULL, status = 'success', solidHeader = TRUE, collapsible = TRUE,
+                tabBox(
+                  width = NULL,
+                  tabPanel(title = 'Director', uiOutput(outputId = 'dir_lucky'), dataTableOutput(outputId = 'dt_dir_lucky')),
+                  tabPanel(title = 'Actor', uiOutput(outputId = 'act_lucky'), dataTableOutput(outputId = 'dt_act_lucky'))
+                )
               )
             )
           )
@@ -255,7 +292,7 @@ dbBody = dashboardBody(
         tabItem(
           tabName = 'about',
           fluidRow(
-            column(width = 10, offset = 1, align = 'center', h1('About'), br()),
+            column(width = 10, offset = 1, align = 'center', h1(tags$i('About')), br()),
             column(width = 10, offset = 1, includeMarkdown('./About.md'))
           )
         )

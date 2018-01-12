@@ -177,7 +177,7 @@ function(input, output, session) {
   output$dir_movies = renderDataTable(dt_movies(stat.dir2()))
   ## data for finding collaborators
   dat_dir_act = reactive({
-    tmp = movies.all %>% group_by(imdbID) %>%
+    movies.all %>% group_by(imdbID) %>%
       filter(row_number() == 1) %>% select(-c(Actors, Director)) %>%
       inner_join(dirs[, -3] %>% filter(Director == input$search_director), by = 'imdbID') %>%
       inner_join(acts[, -3], by = 'imdbID') %>% ft_most_collab(input$search_director, 'act')
@@ -187,7 +187,8 @@ function(input, output, session) {
   ## plots
   output$dir_movies_bar = renderPlotly(bar_ratings(stat.dir2(), input$dir_radio))
   output$dir_timeline = renderPlotly(timeline(stat.dir2(), input$dir_radio))
-
+  output$dir_genres_loli = renderPlotly(loli_genres(stat.dir1()))
+  
 ################################################################################
   ## actor insights
 ################################################################################
@@ -262,7 +263,7 @@ function(input, output, session) {
   output$act_movies = renderDataTable(dt_movies(stat.act2()))
   ## data for finding collaborators
   dat_act_dir = reactive({
-    tmp = movies.all %>% group_by(imdbID) %>%
+    movies.all %>% group_by(imdbID) %>%
       filter(row_number() == 1) %>% select(-c(Actors, Director)) %>%
       inner_join(acts[, -3] %>% filter(Actor == input$search_actor), by = 'imdbID') %>%
       inner_join(dirs[, -3], by = 'imdbID') %>% ft_most_collab(input$search_actor, 'dir')
@@ -280,4 +281,9 @@ function(input, output, session) {
   ## plots
   output$act_movies_bar = renderPlotly(bar_ratings(stat.act2(), input$act_radio))
   output$act_timeline = renderPlotly(timeline(stat.act2(), input$act_radio))
+  output$act_genres_loli = renderPlotly(loli_genres(stat.act1()))
+
+################################################################################
+  ## fun facts page
+################################################################################
 }
