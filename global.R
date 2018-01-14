@@ -230,7 +230,8 @@ bar_polar = function(dat, movies_all) {
   p = ggplot(tmp, aes(Genre, Count, fill = Genre)) + geom_col(width = 0.8) + coord_flip() +
     geom_label(aes(label = Count, fill = Genre), color = 'white', fontface = 'bold', vjust = 0.3, angle = 270, size = 3) + 
     geom_label(aes(Genre, rep(0, nrow(tmp)), label = paste0(round(Count / Total * 100, digits = 1), '%')),
-              color = 'white', fontface = 'bold', vjust = 0.3, size = 3)
+               color = 'white', fontface = 'bold', vjust = 0.3, size = 3) +
+    ylab('# of movies with rating differences over 30')
   plot_custom(p, legend.pos = 'none')
 }
 
