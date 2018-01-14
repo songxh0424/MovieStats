@@ -16,10 +16,18 @@ of information about that movie, including its year of release, director, actors
 Finally, some of the general information on **Directors** page and **Actors** page are scraped from [IMDb](http://www.imdb.com/) using
 package `rvest`
 
+## Packages
+
+ + `shinydashboard`: The entire web app is built around the ui elements and layout options provided by this package.
+ + `tidyverse`: My go-to collection of packages for data cleaning, manipulation and visualizations.
+ + `rvest`: A package for web scraping in R.
+ + `plotly`:It provides a `ggplotly` function that can convert plots created from `ggplot` to plotly objects. Works right out of the box most of the times.
+ + `DT`: An R interface to jQuery DataTable library. Creates interactive tables.
+ + `formattable`: Enables conditional formatting for R tables, similar to the conditional formatting in Microsoft Excel.
+ 
 ## Issues and TODOs
 
  + Some pages can take a while to load. Especially the rankings.
  + The OMDb API only lists the top 4 actors for each movie. Need to get more actors from IMDb.
  + The "Best Seller" movie in director/actor pages may not be accurate since the box office of many movies are not available in the dataset. May need to scrape this information from IMDb movie pages.
- + Consider switch from using DT datatable to formattable, at least the summary table should use formattable.
- + Figure out how to make the Box Office sort properly on Directors/Actors pages.
+ + Figure out how to make the Box Office sort properly on Directors/Actors pages.(formattable doesn't work either)
