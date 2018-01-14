@@ -47,6 +47,8 @@
 ** Fun Facts page
 *** TODO Unlucky Oscar nominees
 *** TODO Oscar's Favorites
+*** TODO Oscar winner/nominee's age
+*** TODO Movies with polarizing scores
 ** About page
 *** TODO Add used packages
 

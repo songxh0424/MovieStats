@@ -286,4 +286,25 @@ function(input, output, session) {
 ################################################################################
   ## fun facts page
 ################################################################################
+  ## oscar lucky/unlucky
+  output$dt_dir_unlucky = renderDataTable(oscar_unlucky(dirOscar_tb, n = 20))
+  output$dt_act_unlucky = renderDataTable(oscar_unlucky(actOscar_tb, n = 20))
+  output$dt_dir_lucky = renderDataTable(oscar_lucky(dirOscar_tb, n = 20))
+  output$dt_act_lucky = renderDataTable(oscar_lucky(actOscar_tb, n = 20))
+  ## movies with polarizing ratings
+  ## output$polar_radio_2 = renderUI({
+  ##   choices_2 = c('IMDb_Rating', 'Metascore', 'Tomatometer') %>% setdiff(input$polar_radio_1)
+  ##   radioButtons(inputId = 'polar_radio_2', label = 'Select the second rating system',
+  ##                choices = choices_2, selected = choices_2[1], inline = TRUE)
+  ## })
+  polar_tb = reactive({
+    choice_1 = 'IMDb Rating' ##input$polar_radio_1
+    choice_2 = 'Metascore' ##input$polar_radio_2
+    tmp = movies.all %>% select(imdbID, Title, Genre, Year, `IMDb Rating`, Metascore) %>%
+      mutate(Difference = abs(`IMDb Rating` - Metascore)) %>% filter(!is.na(Difference)) %>%
+      arrange(desc(Difference)) %>% filter(Difference >= 30)
+  })
+  ## output$polar_top = renderFormattable(ft_polar(polar_tb(), n = 50))
+  output$polar_top = renderDataTable(dt_polar(polar_tb(), n = 50))
+  output$polar_bar = renderPlot(bar_polar(polar_tb(), movies.all))
 }

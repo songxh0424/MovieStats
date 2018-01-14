@@ -80,4 +80,27 @@ saveRDS(acts, file = './RData/acts.rds')
 saveRDS(dirs, file = './RData/dirs.rds')
 load('./RData/movies.all.RData')
 
+## Oscar tables
+dirOscar = readRDS('./RData/dirOscar.rds')
+actOscar = readRDS('./RData/actOscar.rds')
+dirOscar_tb = lapply(1:length(dirOscar), function(i) {
+  if(is.null(dirOscar[[i]]$oscar)) return(NULL)
+  dirOscar[[i]]$oscar %>% summarise(Won = sum(Result), Nominated = n(), `Nominated Years` = paste0(Year, collapse = ', '),
+                                    `Won Years` = paste0(Year[which(Result)], collapse = ', ')) %>%
+    mutate(Name = names(dirOscar)[i]) %>% select(Name, Won, Nominated, `Won Years`, `Nominated Years`)
+}) %>% bind_rows() %>% arrange(desc(Nominated), Won)
+actOscar_tb = lapply(1:length(actOscar), function(i) {
+  if(is.null(actOscar[[i]]$oscar)) return(NULL)
+  actOscar[[i]]$oscar %>% summarise(Won = sum(Result), Nominated = n(), `Nominated Years` = paste0(Year, collapse = ', '),
+                                    `Won Years` = paste0(Year[which(Result)], collapse = ', ')) %>%
+    mutate(Name = names(actOscar)[i]) %>% select(Name, Won, Nominated, `Won Years`, `Nominated Years`)
+}) %>% bind_rows() %>% arrange(desc(Nominated), Won)
+saveRDS(dirOscar_tb, file = './RData/dirOscar_tb.rds')
+saveRDS(actOscar_tb, file = './RData/actOscar_tb.rds')
 
+## tables for polarizing movies
+polar_tb = movies.all %>% select_('Title', 'Genre', 'Year', choice_1, choice_2) %>%
+  mutate_(Difference = abs(choice_1 - choice_2)) %>% arrange(desc(Deference)) %>% filter(Difference >= 30)
+top_polar = polar_tb %>% group_by(imdbID) %>% filter(row_number() == 1) %>% head(50)
+saveRDS(polar_tb, file = './RData/polar_tb.rds')
+saveRDS(top_polar, file = './RData/top_polar.rds')

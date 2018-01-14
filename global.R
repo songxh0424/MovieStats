@@ -2,8 +2,8 @@
 ## Functions
 ################################################################################
 ## plotting and theming functions
-theme_Publication <- function(base_size=10, legend.pos = "bottom") {
-      (theme_foundation(base_size=base_size)
+theme_Publication <- function(base_size=10, legend.pos = 'bottom') {
+  t = (theme_foundation(base_size=base_size)
        + theme(plot.title = element_text(face = "bold",
                                          size = rel(1.2), hjust = 0.5),
                text = element_text(),
@@ -27,7 +27,8 @@ theme_Publication <- function(base_size=10, legend.pos = "bottom") {
                plot.margin=unit(c(10,5,5,5),"mm"),
                strip.background=element_rect(colour="#f0f0f0",fill="#f0f0f0"),
                strip.text = element_text(face="italic")
-          ))
+      ))
+  return(t)
 }
 
 scale_fill_Publication <- function(...){
@@ -41,12 +42,17 @@ scale_colour_Publication <- function(...){
 }
 
 plot_custom <- function(p, saveTo = NULL, base_size=10, legend.pos = "right") {
-  out = p + theme_Publication(base_size, legend.pos) + scale_fill_Publication() + scale_colour_Publication()
+  ## out = p + theme_Publication(base_size, legend.pos) + scale_fill_Publication() + scale_colour_Publication()
+  out = p + theme_Publication(base_size, legend.pos) + scale_fill_tableau(palette = 'tableau20') +
+    scale_colour_tableau(palette = 'tableau20')
   if(is.null(saveTo)) return(out)
   ggsave(saveTo, out)
   return(out)
 }
 
+################################################################################
+## First Page
+################################################################################
 ## yearly trend
 year_trend = function(dat) {
   p = ggplot(dat, aes(Year, Ratings)) + geom_line(color = '#386cb0') +
@@ -97,6 +103,9 @@ ranking = function(dat, type = c('dir', 'act', 'duo'), thres, Source = c('IMDb R
   datatable(tmp[1:100, ], class = 'cell-border stripe', options = list(pageLength = 10), filter = "top")
 }
 
+################################################################################
+## Director/Actor pages
+################################################################################
 ## data tables for actor/director summary statistics
 dt_sumry = function(dat) {
   tmp = dat %>% gather(key = Source, value = Ratings, `IMDb Rating`:Tomatometer) %>%
@@ -182,6 +191,50 @@ loli_genres = function(dat) {
 }
 
 ################################################################################
+## Fun Facts page
+################################################################################
+## oscar lucky/unlucky tables
+oscar_unlucky = function(dat, n = 20) {
+  tb = dat %>% filter(Won == 0) %>% head(n) %>% select(-`Won Years`, -Won)
+  datatable(tb, class = 'cell-border stripe', options = list(dom = 'tp', ordering = F, pageLength = 5))
+}
+oscar_lucky = function(dat, n = 20) {
+  tb = dat %>% arrange(desc(Won), desc(Nominated)) %>% mutate(`Win Rate` = round(Won / Nominated * 100, 2)) %>%
+    select(-`Nominated Years`)
+  datatable(tb[1:n, ], class = 'cell-border stripe', options = list(dom = 'tp', pageLength = 5))
+}
+## polarizing movies
+ft_polar = function(dat, n = 50) {
+  top_polar = dat %>% group_by(imdbID) %>% filter(row_number() == 1) %>% head(n) %>% select(-c(imdbID, Genre))
+  formatter = list()
+  if('Metascore' %in% names(top_polar))
+    formatter$Metascore = formatter('span', style = x ~ style(color = ifelse(is.na(x), 'grey', ifelse(x > 60, 'green', ifelse(x > 39, '#fdb462', 'red')))))
+  if(('IMDb Rating' %in% names(top_polar)) & ('Tomatometer' %in% names(top_polar)))
+    formatter = c(formatter, area(col = c(`IMDb Rating`, Tomatometer)) ~ normalize_bar('pink', 0.2))
+  if(('IMDb Rating' %in% names(top_polar)) & !('Tomatometer' %in% names(top_polar)))
+    formatter = c(formatter, area(col = c(`IMDb Rating`)) ~ normalize_bar('pink', 0.2))
+  if(!('IMDb Rating' %in% names(top_polar)) & ('Tomatometer' %in% names(top_polar)))
+    formatter = c(formatter, area(col = c(Tomatometer)) ~ normalize_bar('pink', 0.2))
+  formattable(top_polar[, -1], formatter)
+}
+dt_polar = function(dat, n = 50) {
+  top_polar = dat %>% group_by(imdbID) %>% filter(row_number() == 1) %>% head(n) %>% select(-c(imdbID, Genre))
+  datatable(top_polar[, -1], class = 'cell-border stripe', options = list(pageLength = 10, dom = 'tp'))
+}
+bar_polar = function(dat, movies_all) {
+  totalCount = movies_all %>% group_by(Genre) %>% summarise(Total = n())
+  tmp = dat %>% group_by(Genre) %>% summarise(Count = n()) %>% inner_join(totalCount, by = 'Genre') %>%
+    arrange(desc(Count)) 
+  tmp = bind_rows(tmp[1:10, ], tmp[-(1:10), ] %>% summarise(Count = sum(Count), Total = sum(Total)) %>% mutate(Genre = 'Others')) %>%
+    mutate(Genre = factor(Genre, levels = rev(Genre)))
+  p = ggplot(tmp, aes(Genre, Count, fill = Genre)) + geom_col(width = 0.8) + coord_flip() +
+    geom_label(aes(label = Count, fill = Genre), color = 'white', fontface = 'bold', vjust = 0.3, angle = 270, size = 3) + 
+    geom_label(aes(Genre, rep(0, nrow(tmp)), label = paste0(round(Count / Total * 100, digits = 1), '%')),
+              color = 'white', fontface = 'bold', vjust = 0.3, size = 3)
+  plot_custom(p, legend.pos = 'none')
+}
+
+################################################################################
 ## Global variables
 ################################################################################
 library(shiny)
@@ -208,14 +261,17 @@ dirTM = readRDS('./RData/dirTM.rds')
 actTM = readRDS('./RData/actTM.rds')
 dirOscar = readRDS('./RData/dirOscar.rds')
 actOscar = readRDS('./RData/actOscar.rds')
+dirOscar_tb = readRDS('./RData/dirOscar_tb.rds')
+actOscar_tb = readRDS('./RData/actOscar_tb.rds')
 
 genres = c('Action', 'Adventure', 'Animation', 'Children', 'Comedy', 'Crime', 'Documentary',
            'Drama', 'Fantasy', 'Film-Noir', 'Horror', 'Musical', 'Mystery', 'Romance', 'Sci-Fi',
            'Thriller', 'War', 'Western', 'IMAX', '(no genres listed)')
-source('header.R')
-source('sidebar.R')
-source('body.R')
 b = tags$b
 br = tags$br
 bq = tags$blockquote
+
+source('header.R')
+source('sidebar.R')
+source('body.R')
 

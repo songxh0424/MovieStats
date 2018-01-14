@@ -242,7 +242,7 @@ dbBody = dashboardBody(
                 title = NULL, width = NULL,
                 tabPanel(
                   title = 'Ratings',
-                  radioButtons('act_radio', label = 'Select rating source', choices = c('IMDb Rating', 'Metascore', 'Tomatometer'),
+                  radioButtons('act_radio', label = 'Select rating system', choices = c('IMDb Rating', 'Metascore', 'Tomatometer'),
                                selected = 'IMDb Rating', inline = T),
                   box(width = NULL, h3('Movie Ratings'), hr(), plotlyOutput('act_movies_bar')),
                   box(width = NULL, h3('Movie Timeline'), hr(), plotlyOutput('act_timeline'))
@@ -264,19 +264,36 @@ dbBody = dashboardBody(
             column(width = 10, offset = 1, align = 'center', h1(tags$i('Fun Facts')), br()),
             column(
               width = 6,
+              ## unlucky oscar nominees
               box(
                 title = 'Unlucky Oscar Nominees', width = NULL, status = 'success', solidHeader = TRUE, collapsible = TRUE,
+                bq('This section lists the directors and actors that received plenty of Oscar nominations but never landed an award.'),
                 tabBox(
                   width = NULL,
                   tabPanel(title = 'Director', uiOutput(outputId = 'dir_unlucky'), dataTableOutput(outputId = 'dt_dir_unlucky')),
                   tabPanel(title = 'Actor', uiOutput(outputId = 'act_unlucky'), dataTableOutput(outputId = 'dt_act_unlucky'))
                 )
+              ),
+              ## movies with polarizing ratings
+              box(
+                title = 'Movies with Polarizing Ratings', width = NULL, status = 'danger', solidHeader = TRUE, collapsible = TRUE,
+                bq("User's opinions and Critics opinions often differ regarding the same movie. This section lists the most polarizing movies
+                    according to their IMDb ratings and Metascores"),
+                ## radioButtons('polar_radio_1', label = 'Select the first rating system', choices = c('IMDb_Rating', 'Metascore', 'Tomatometer'),
+                ##              selected = 'IMDb_Rating', inline = TRUE),
+                ## uiOutput('polar_radio_2'),
+                ## formattableOutput('polar_top'),
+                h3('Top 50 most polarizing movies'), hr(), dataTableOutput('polar_top'),
+                h3('Polarizing movies by genre'), hr(), plotOutput('polar_bar')
               )
             ),
+            ## oscar favorites
             column(
               width = 6,
               box(
                 title = 'Oscar\'s Favorites', width = NULL, status = 'success', solidHeader = TRUE, collapsible = TRUE,
+                bq('Here are some of directors and actors that frequently receive Oscar\'s recognition. Directors and Actors are ranked first by
+                    number of awards and then by number of nominations'),
                 tabBox(
                   width = NULL,
                   tabPanel(title = 'Director', uiOutput(outputId = 'dir_lucky'), dataTableOutput(outputId = 'dt_dir_lucky')),
