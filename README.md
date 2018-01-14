@@ -13,12 +13,20 @@ Metacritics and Tomatometer from Rotten Tomatoes. The **Director/Actor Rankings*
 average movie ratings. The three rating systems are also available for these rankings. On the left side of this page is a few filtering
 criteria determining which movies, actors or directors to be included in the output.
 
+![](./screenshots/1.png)
+
 The **Directors** page contains general information and statistics of over 10,000 directors. You can find a director by type in and select
 his/her name in the search box right under the "Directors" tab in the side menu. Make sure you click on the tab to see the results as the search
 box doesn't automatically direct you there. The **Actors** page functions in the exact same way, only that it displays information of individual actors.
 
+![](./screenshots/2.png)
+
+![](./screenshots/3.png)
+
 The **Fun Facts** page showcases some of the interesting facts buried beneath the data. Currently it covers topics like Oscar's award records and
 polarizing movies. More items will be added further down the line.
+
+![](./screenshots/4.png)
 
 Most plots and tables in these pages are interactive. Interactive plots are powered by Plotly. Hover your mouse over the plots to see additional
 information as well as possible actions like zooming in. Interactive tables are powered by jQuery DataTable library. Filter options can be applied
