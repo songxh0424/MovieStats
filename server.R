@@ -68,7 +68,8 @@ function(input, output, session) {
       filter(Genre %in% input$genre) %>% group_by(imdbID) %>%
       filter(row_number() == 1) %>% select(-Director) %>%
       inner_join(dirs, by = 'imdbID') %>% group_by(Director) %>%
-      summarise(Movies = n(), `IMDb Rating` = mean(`IMDb Rating`, na.rm = TRUE) %>% round(2),
+      summarise(Movies = n(), n_meta = sum(!is.na(Metascore)), n_tomato = sum(!is.na(Tomatometer)),
+                `IMDb Rating` = mean(`IMDb Rating`, na.rm = TRUE) %>% round(2),
                 Metascore = mean(Metascore, na.rm = T) %>% round(2),
                 Tomatometer = mean(Tomatometer, na.rm = T) %>% round(2))
   })
@@ -81,7 +82,8 @@ function(input, output, session) {
       filter(Genre %in% input$genre) %>% group_by(imdbID) %>%
       filter(row_number() == 1) %>% select(-Actors) %>%
       inner_join(acts, by = 'imdbID') %>% group_by(Actor) %>%
-      summarise(Movies = n(), `IMDb Rating` = mean(`IMDb Rating`, na.rm = TRUE) %>% round(2),
+      summarise(Movies = n(), n_meta = sum(!is.na(Metascore)), n_tomato = sum(!is.na(Tomatometer)),
+                `IMDb Rating` = mean(`IMDb Rating`, na.rm = TRUE) %>% round(2),
                 Metascore = mean(Metascore, na.rm = T) %>% round(2),
                 Tomatometer = mean(Tomatometer, na.rm = T) %>% round(2))
   })
@@ -95,7 +97,8 @@ function(input, output, session) {
       filter(row_number() == 1) %>% select(-c(Actors, Director)) %>%
       inner_join(acts[, -3], by = 'imdbID') %>% inner_join(dirs[, -3], by = 'imdbID') %>%
       group_by(Director, Actor) %>%
-      summarise(Movies = n(), `IMDb Rating` = mean(`IMDb Rating`, na.rm = TRUE) %>% round(2),
+      summarise(Movies = n(), n_meta = sum(!is.na(Metascore)), n_tomato = sum(!is.na(Tomatometer)),
+                `IMDb Rating` = mean(`IMDb Rating`, na.rm = TRUE) %>% round(2),
                 Metascore = mean(Metascore, na.rm = T) %>% round(2),
                 Tomatometer = mean(Tomatometer, na.rm = T) %>% round(2))
   })

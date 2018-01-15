@@ -33,13 +33,14 @@ dirInfos1 = foreach(dir = dirIDs[1:1500]) %dopar%
     id = dir$id
     getInfo(id)
   }, error = function(e) {print(e); return(NULL)})
+saveRDS(dirInfos1, file = '../RData/dirTM1.rds')
 dirInfos2 = foreach(dir = dirIDs[1501:length(dirIDs)]) %dopar%
   tryCatch({
     if(is.null(dir)) return(NULL)
     id = dir$id
     getInfo(id)
   }, error = function(e) {print(e); return(NULL)})
-dirInfos = c(dirInfos1, dirInfos2)
+dirInfos = c(readRDS('../RData/dirTM1.rds'), dirInfos2)
 names(dirInfos) = names(dirIDs)
 saveRDS(dirInfos, file = '../RData/dirTM.rds')
 
@@ -49,14 +50,14 @@ actInfos1 = foreach(act = actIDs[1:1500]) %dopar%
     id = act$id
     getInfo(id)
   }, error = function(e) {print(e); return(NULL)})
-save(actInfos1, file = '../RData/actTM1.rds')
+saveRDS(actInfos1, file = '../RData/actTM1.rds')
 actInfos2 = foreach(act = actIDs[1501:3000]) %dopar% 
   tryCatch({
     if(is.null(dir)) return(NULL)
     id = act$id
     getInfo(id)
   }, error = function(e) {print(e); return(NULL)})
-save(actInfos2, file = '../RData/actTM2.rds')
+saveRDS(actInfos2, file = '../RData/actTM2.rds')
 actInfos3 = foreach(act = actIDs[3001:length(actIDs)]) %dopar% 
   tryCatch({
     if(is.null(dir)) return(NULL)

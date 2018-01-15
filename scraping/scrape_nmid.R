@@ -7,7 +7,7 @@ library(jsonlite)
 library(doParallel)
 library(parallel)
 library(rvest)
-load('../RData/movies.all.RData')
+movies.all = readRDS('../RData/movies.all.rds')
 dirs = readRDS('../RData/dirs.rds')
 acts = readRDS('../RData/acts.rds')
 
@@ -30,19 +30,16 @@ get_nmid = function(name) {
 
 cores = 24 
 registerDoParallel(cores = cores)
-directorIDs = foreach(dir = unique(directors$Director)) %dopar%
+dirIDs = foreach(dir = unique(dirs$Director)) %dopar%
   tryCatch({print(dir); get_nmid(dir)},
-           error = function(e) {print(sprintf('Error: Director %s', dir)); return(NULL)}
+           error = function(e) {print(sprintf('Error: Dir %s', dir)); return(NULL)}
            )
-names(directorIDs) = unique(directors$Director)
-dirIDs = directorIDs[unique(dirs$Director)]
-save(directorIDs, file = '../RData/directorIDs.RData')
+names(dirIDs) = unique(dirs$Director)
 saveRDS(dirIDs, file = '../RData/dirIDs.rds')
-actorIDs = foreach(act = unique(actors$Actor)) %dopar%
+
+actIDs = foreach(act = unique(acts$Actor)) %dopar%
   tryCatch(get_nmid(act),
            error = function(e) {print(sprintf('Error: Actor %s', act)); return(act)}
            )
-names(actorIDs) = unique(actors$Actor)
-actIDs = actorIDs[unique(acts$Actor)]
-save(actorIDs, file = '../RData/actorIDs.RData')
+names(actIDs) = unique(acts$Actor)
 saveRDS(actIDs, file = '../RData/actIDs.rds')

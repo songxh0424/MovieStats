@@ -21,24 +21,26 @@ requestData = function(id) {
   return(response)
 }
 
-if(!file.exists('./RData/apiData.RData')) {
+cores = 24
+if(!file.exists('./RData/apiData.rds')) {
   registerDoParallel(cores = cores)
-  apiData = foreach(id = movies$imdbId) %dopar% requestData(id)
-  save(apiData, file = './RData/apiData.RData')
+  apiData = foreach(id = movies$imdbId) %dopar% tryCatch(requestData(id), error = function(e) NULL)
+  saveRDS(apiData, file = './RData/apiData.rds')
 } else {
   load('./RData/apiData.RData')
+  apiData = readRDS('./RData/apiData.rds')
 }
 
 ## transform data
 apiData = apiData[!sapply(apiData, is.null)]
 ## filter out tvs
 apiData = apiData[!sapply(apiData, function(x) 'Season' %in% names(x))]
-omdb = lapply(apiData, function(x) {
+omdb = mclapply(apiData, function(x) {
   x$Ratings = x$Ratings$Value[2] %>% str_replace('%', '')
   if(length(x$Ratings) == 0) x$Ratings = NA
   tmp = as.data.frame(x) %>% rename(rtRating = Ratings)
   return(tmp)
-}) %>% bind_rows()
+}, mc.cores = cores) %>% bind_rows()
 omdb = omdb %>% filter(Type == 'movie')
 omdb[omdb == 'N/A'] = NA
 num = . %>% str_replace_all(',', '') %>% as.numeric()
@@ -47,6 +49,7 @@ omdb = omdb %>%
          Metascore = num(Metascore), imdbVotes = num(imdbVotes), Year = num(Year)) %>%
   select(-c(Type, Response:totalSeasons)) %>%
   rename(Tomatometer = rtRating, `IMDb Rating` = imdbRating)
+saveRDS(omdb, file = './RData/omdb.rds')
 
 ## genres using MovieLens data
 genres = lapply(1:nrow(movieGenres), function(i) {
@@ -55,9 +58,27 @@ genres = lapply(1:nrow(movieGenres), function(i) {
 }) %>% bind_rows()
 movies.all = omdb %>% select(-Genre) %>%
   inner_join(movies %>% mutate(imdbId = paste0('tt', imdbId)), by = c('imdbID' = 'imdbId')) %>%
-  inner_join(genres, by = 'movieId') %>%
+  inner_join(genres, by = 'movieId')
+## Box office table
+movieBO = readRDS('./RData/movieBO.rds')
+boxoffice = lapply(1:length(movieBO), function(i) {
+  if(is.null(movieBO[[i]])) {
+    data.frame(imdbID = names(movieBO)[i])
+  } else if(nrow(movieBO[[i]]) == 0) {
+    data.frame(imdbID = names(movieBO)[i])
+  } else {
+    movieBO[[i]] %>% mutate(Name = str_replace(Name, ':', ''), imdbID = names(movieBO)[i]) %>%
+      spread(key = Name, value = Value)
+  }
+}) %>% bind_rows()
+boxoffice[is.na(boxoffice)] = '$0'
+saveRDS(boxoffice, file = './RData/boxoffice.rds')
+movies.all = movies.all %>% inner_join(boxoffice, by = 'imdbID') %>%
   mutate(Title = str_trim(Title),
-         BoxOffice = BoxOffice %>% str_sub(start = 2) %>% str_replace_all(',', '') %>% as.numeric())
+         `Estimated Budget` = Budget %>% str_sub(start = 2) %>% str_replace_all(',', '') %>% as.numeric(),
+         BoxOffice = ifelse(is.na(BoxOffice), `Gross USA`, BoxOffice)) %>%
+  mutate(BoxOffice = BoxOffice %>% str_sub(start = 2) %>% str_replace_all(',', '') %>% as.numeric())
+saveRDS(movies.all, file = './RData/movies.all.rds')
 
 ## actors table
 actors = lapply(1:nrow(omdb), function(i) {
@@ -72,13 +93,10 @@ directors = lapply(1:nrow(omdb), function(i) {
 ## too many actors and directors, only keep the ones with a good amount of films
 actors = actors %>% group_by(Actor) %>% mutate(movies = length(unique(imdbID))) %>% arrange(desc(movies))
 directors = directors %>% group_by(Director) %>% mutate(movies = length(unique(imdbID))) %>% arrange(desc(movies))
-acts = actors %>% filter(movies > 4)
-dirs = directors %>% filter(movies > 2)
-save(movies.all, actors, directors, file = './RData/movies.all.RData')
-saveRDS(movies.all, file = './RData/movies.all.rds')
+acts = actors %>% filter(movies >= 7)
+dirs = directors %>% filter(movies >= 5)
 saveRDS(acts, file = './RData/acts.rds')
 saveRDS(dirs, file = './RData/dirs.rds')
-load('./RData/movies.all.RData')
 
 ## Oscar tables
 dirOscar = readRDS('./RData/dirOscar.rds')
@@ -104,3 +122,6 @@ polar_tb = movies.all %>% select_('Title', 'Genre', 'Year', choice_1, choice_2) 
 top_polar = polar_tb %>% group_by(imdbID) %>% filter(row_number() == 1) %>% head(50)
 saveRDS(polar_tb, file = './RData/polar_tb.rds')
 saveRDS(top_polar, file = './RData/top_polar.rds')
+
+## clear out all TV movies
+movieTV = readRDS('./RData/movieTV.rds')

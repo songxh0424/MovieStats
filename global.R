@@ -90,8 +90,8 @@ ranking = function(dat, type = c('dir', 'act', 'duo'), thres, Source = c('IMDb R
   sour = match.arg(Source, c('IMDb Rating', 'Metascore', 'Tomatometer'))
   tmp = switch(sour,
                'IMDb Rating' = dat %>% rename(Ratings = `IMDb Rating`),
-               'Metascore' = dat %>% rename(Ratings = Metascore),
-               'Tomatometer' = dat %>% rename(Ratings = Tomatometer)
+               'Metascore' = dat %>% select(-Movies) %>% rename(Ratings = Metascore, Movies = n_meta),
+               'Tomatometer' = dat %>% select(-Movies) %>% rename(Ratings = Tomatometer, Movies = n_tomato)
                )
   tp = match.arg(type, c('dir', 'act', 'duo'))
   tmp = tmp %>% filter(Movies >= thres) %>% arrange(desc(Ratings))
