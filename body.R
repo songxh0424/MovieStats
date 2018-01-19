@@ -299,6 +299,13 @@ dbBody = dashboardBody(
                   tabPanel(title = 'Director', uiOutput(outputId = 'dir_lucky'), dataTableOutput(outputId = 'dt_dir_lucky')),
                   tabPanel(title = 'Actor', uiOutput(outputId = 'act_lucky'), dataTableOutput(outputId = 'dt_act_lucky'))
                 )
+              ),
+              box(
+                title = 'Progression of Movie Genres', width = NULL, status = 'warning', solidHeader = TRUE, collapsible = TRUE,
+                bq('Filming techniques have been evolving over the past century. This leads to the constant shift of popularity among film genres.'),
+                p('Note: Click on a specific legend item to add or remove that genre from the plot. Double click to only look at that genre.'),
+                ## h3('Genres per movie'), hr(), rbokehOutput('g_per_movie'),
+                h3('Genre percentage over the years'), plotlyOutput('g_percent')
               )
             )
           )

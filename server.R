@@ -32,7 +32,8 @@ function(input, output, session) {
   })
   ggdat.bo = reactive({
     movies.all %>% filter(Year >= input$year[1] & Year <= input$year[2]) %>%
-      filter(Genre %in% input$genre) %>% group_by(imdbID) %>% filter(row_number() == 1)
+      filter(Genre %in% input$genre) %>% group_by(imdbID) %>% filter(row_number() == 1) %>%
+      filter(BoxOffice > 1000000)
   })
   ## yearly trends plots
   ## need to figure out how to put ggdat.trend outside the render functions
@@ -310,4 +311,6 @@ function(input, output, session) {
   ## output$polar_top = renderFormattable(ft_polar(polar_tb(), n = 50))
   output$polar_top = renderDataTable(dt_polar(polar_tb(), n = 50))
   output$polar_bar = renderPlot(bar_polar(polar_tb(), movies.all))
+  ## progression of movie genres
+  output$g_percent = renderPlotly(ggplotly(readRDS('./RData/genre_trend_plot.rds') %>% plot_custom()))
 }

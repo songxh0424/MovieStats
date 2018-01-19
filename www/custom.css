@@ -9,3 +9,7 @@
 .small-box {
     height: 95px
 }
+
+.skin-black .sidebar-menu>li.active>a {
+    border-left-color: #fdb462;
+}

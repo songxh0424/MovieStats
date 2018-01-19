@@ -41,10 +41,10 @@ scale_colour_Publication <- function(...){
       discrete_scale("colour","Publication",manual_pal(values = rep(c("#386cb0","#fdb462","#7fc97f","#ef3b2c","#662506","#a6cee3","#fb9a99","#984ea3","#ffff33", "#FFA500", "#3cb371", "#1E90FF"), 2)), ...)
 }
 
-plot_custom <- function(p, saveTo = NULL, base_size=10, legend.pos = "right") {
-  ## out = p + theme_Publication(base_size, legend.pos) + scale_fill_Publication() + scale_colour_Publication()
-  out = p + theme_Publication(base_size, legend.pos) + scale_fill_tableau(palette = 'tableau20') +
-    scale_colour_tableau(palette = 'tableau20')
+plot_custom <- function(p, saveTo = NULL, base_size=10, legend.pos = "right", color = TRUE, fill = FALSE) {
+  out = p + theme_Publication(base_size, legend.pos)
+  if(color) out = out + scale_colour_tableau(palette = 'tableau20')
+  if(fill) out = out + scale_fill_tableau(palette = 'tableau20')
   if(is.null(saveTo)) return(out)
   ggsave(saveTo, out)
   return(out)
@@ -79,7 +79,7 @@ bo_scat_rating = function(dat, Source = c('imdb', 'meta', 'rt')) {
                'imdb' = dat %>% rename(Ratings = `IMDb Rating`),
                'meta' = dat %>% rename(Ratings = Metascore),
                'rt' = dat %>% rename(Ratings = Tomatometer)
-               )
+               ) %>% filter(BoxOffice > 0)
   p = ggplot(tmp, aes(Ratings, BoxOffice, text = Title)) + geom_jitter(color = 'slategrey', alpha = 0.5) +
     ylab('Box Office')
   plot_custom(p, legend.pos = 'none') %>% ggplotly()
@@ -232,7 +232,7 @@ bar_polar = function(dat, movies_all) {
     geom_label(aes(Genre, rep(0, nrow(tmp)), label = paste0(round(Count / Total * 100, digits = 1), '%')),
                color = 'white', fontface = 'bold', vjust = 0.3, size = 3) +
     ylab('# of movies with rating differences over 30')
-  plot_custom(p, legend.pos = 'none')
+  plot_custom(p, legend.pos = 'none', fill = TRUE)
 }
 
 ################################################################################
@@ -250,6 +250,7 @@ library(DT)
 library(markdown)
 library(lubridate)
 library(formattable)
+library(rbokeh)
 
 movies.all = readRDS('./RData/movies.all.rds')
 dirs = readRDS('./RData/dirs.rds')
