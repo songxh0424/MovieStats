@@ -76,7 +76,7 @@ saveRDS(boxoffice, file = './RData/boxoffice.rds')
 movies.all = movies.all %>% inner_join(boxoffice, by = 'imdbID') %>%
   mutate(Title = str_trim(Title),
          `Estimated Budget` = Budget %>% str_sub(start = 2) %>% str_replace_all(',', '') %>% as.numeric(),
-         BoxOffice = ifelse(is.na(BoxOffice), `Gross USA`, BoxOffice)) %>%
+         BoxOffice = ifelse(is.na(`Gross USA`), BoxOffice, `Gross USA`)) %>%
   mutate(BoxOffice = BoxOffice %>% str_sub(start = 2) %>% str_replace_all(',', '') %>% as.numeric())
 saveRDS(movies.all, file = './RData/movies.all.rds')
 
@@ -95,6 +95,15 @@ actors = actors %>% group_by(Actor) %>% mutate(movies = length(unique(imdbID))) 
 directors = directors %>% group_by(Director) %>% mutate(movies = length(unique(imdbID))) %>% arrange(desc(movies))
 acts = actors %>% filter(movies >= 7)
 dirs = directors %>% filter(movies >= 5)
+saveRDS(acts, file = './RData/acts.rds')
+saveRDS(dirs, file = './RData/dirs.rds')
+## clear out all TV movies
+movieTV = readRDS('./RData/movieTV.rds')
+tvIDs = names(which(unlist(movieTV)))
+movies.all = filter(movies.all, !(imdbID %in% tvIDs))
+dirs = filter(dirs, !(imdbID %in% tvIDs))
+acts = filter(acts, !(imdbID %in% tvIDs))
+saveRDS(movies.all, file = './RData/movies.all.rds')
 saveRDS(acts, file = './RData/acts.rds')
 saveRDS(dirs, file = './RData/dirs.rds')
 
@@ -123,5 +132,13 @@ top_polar = polar_tb %>% group_by(imdbID) %>% filter(row_number() == 1) %>% head
 saveRDS(polar_tb, file = './RData/polar_tb.rds')
 saveRDS(top_polar, file = './RData/top_polar.rds')
 
-## clear out all TV movies
-movieTV = readRDS('./RData/movieTV.rds')
+## tables for genres trend
+genre_tb1 = movies.all %>% filter(Year >= 1930, Year <= 2017) %>% group_by(imdbID) %>%
+  summarise(Year = Year[1], Count = n()) %>%
+  group_by(Year) %>% summarise(Count = mean(Count))
+genre_tb2 = movies.all %>% filter(!(Genre %in% c('(no genres listed)', 'IMAX', 'Film-Noir')), Year >= 1930, Year <= 2017) %>%
+  group_by(Year) %>% mutate(Total = length(unique(imdbID))) %>% ungroup() %>% group_by(Year, Genre) %>%
+  summarise(Count = n(), Total = first(Total)) %>% mutate(Percentage = round(Count / Total * 100, 2))
+p = ggplot(genre_tb2, aes(Year, Percentage, color = Genre, name = Count)) + geom_line(size = 0.3)
+saveRDS(p, './RData/genre_trend_plot.rds')
+
