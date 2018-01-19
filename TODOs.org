@@ -48,9 +48,12 @@
 *** TODO Unlucky Oscar nominees
 *** TODO Oscar's Favorites
 *** TODO Oscar winner/nominee's age
-*** TODO Movies with polarizing scores
+*** DONE Movies with polarizing scores
+*** TODO See the trend of average genres per movie; percentage of major genres trend
+*** TODO The trend of highest gross usa
+*** TODO Words often appear in good films vs. words in bad films
 ** About page
-*** TODO Add used packages
+*** DONE Add used packages
 
 * Clean Up
 ** Main Page

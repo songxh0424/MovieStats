@@ -7,8 +7,8 @@ just by seeing the raw information on websites like IMDb.
 
 ## Data Sources
 
-The collection of movies in this web app is from [MovieLens 20M Dataset](https://grouplens.org/datasets/movielens/20m/). The dataset
-contains the titles, genres, and IMDb IDs of close to 30,000 movies.
+The collection of movies in this web app is from [MovieLens Latest Dataset](https://grouplens.org/datasets/movielens/latest/). The dataset
+contains the titles, genres, and IMDb IDs of over 45,000 movies.
 
 Another data source is the [OMDb API](http://www.omdbapi.com/). By supplying the IMDb ID of a movie, the API can return a wide range
 of information about that movie, including its year of release, director, actors, ratings and box office (though often missing).
