@@ -15,7 +15,7 @@ getInfo = function(id) {
   url = sprintf('http://www.imdb.com/title/%s/?ref_=nv_sr_1', id)
   webHTML = read_html(url)
   release = webHTML %>% html_node('.subtext')
-  tv = release %>% html_text() %>% str_to_lower() %>% str_detect('tv movie')
+  tv = release %>% html_text() %>% str_to_lower() %>% str_detect('tv')
   return(tv)
 }
 
