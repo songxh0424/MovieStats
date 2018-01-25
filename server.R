@@ -21,13 +21,13 @@ function(input, output, session) {
   ## plots on stats page
   ggdat.ratings = reactive({
     movies.all %>% filter(Year >= input$year[1] & Year <= input$year[2]) %>%
-      filter(Genre %in% input$genre)
+      filter(Genre %in% input$genre) %>% group_by(Genre) %>% mutate(Count = n()) %>% ungroup()
   })
   ggdat.trend = reactive({
     movies.all %>% filter(Year >= input$year[1] & Year <= input$year[2]) %>%
       filter(Genre %in% input$genre) %>% group_by(imdbID) %>%
       filter(row_number() == 1) %>% group_by(Year) %>%
-      summarise(`IMDb Rating` = mean(`IMDb Rating`, na.rm = TRUE),
+      summarise(Count = n(), `IMDb Rating` = mean(`IMDb Rating`, na.rm = TRUE),
                 Metascore = mean(Metascore, na.rm = T), Tomatometer = mean(Tomatometer, na.rm = T))
   })
   ggdat.bo = reactive({
@@ -312,5 +312,10 @@ function(input, output, session) {
   output$polar_top = renderDataTable(dt_polar(polar_tb(), n = 50))
   output$polar_bar = renderPlot(bar_polar(polar_tb(), movies.all))
   ## progression of movie genres
-  output$g_percent = renderPlotly(ggplotly(readRDS('./RData/genre_trend_plot.rds') %>% plot_custom()))
+  output$g_percent = renderPlotly(ggplotly(readRDS('./RData/genre_trend_plot.rds')) %>% layout(margin = list(t = 20)))
+  ## word frequency
+  output$bar_word = renderPlotly({
+    tooltip = c('Word', 'log_ratio', 'Count', 'Top25', 'Bottom25')
+    ggplotly(readRDS('./RData/bar_word.rds'), tooltip = tooltip) %>% layout(margin = list(t = 20))
+  })
 }

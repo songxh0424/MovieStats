@@ -140,5 +140,28 @@ genre_tb2 = movies.all %>% filter(!(Genre %in% c('(no genres listed)', 'IMAX', '
   group_by(Year) %>% mutate(Total = length(unique(imdbID))) %>% ungroup() %>% group_by(Year, Genre) %>%
   summarise(Count = n(), Total = first(Total)) %>% mutate(Percentage = round(Count / Total * 100, 2))
 p = ggplot(genre_tb2, aes(Year, Percentage, color = Genre, name = Count)) + geom_line(size = 0.3)
-saveRDS(p, './RData/genre_trend_plot.rds')
+saveRDS(plot_custom(p), './RData/genre_trend_plot.rds')
 
+## Word frequency
+words.ls = str_extract_all((movies.all %>% group_by(imdbID) %>% filter(row_number() == 1))$Plot, '\\b\\w+\\b')
+words = lapply(words.ls, function(wds) data.frame(word = wds, count = rep(1, length(wds)))) %>%
+  bind_rows() %>% mutate(word = str_to_lower(word)) %>% group_by(word) %>%
+  summarise(count = sum(count)) %>% arrange(desc(count))
+words.top = words %>% filter(count >= 200)
+## word freq vs. rating
+movies.quant = movies.all %>% group_by(imdbID) %>% filter(row_number() == 1, !is.na(`IMDb Rating`)) %>%
+  ungroup() %>% select(Plot, `IMDb Rating`) %>% rename(Rating = `IMDb Rating`) 
+tmp = movies.quant %>% summarise(q1 = quantile(Rating, 0.25), q2 = quantile(Rating, 0.5), q3 = quantile(Rating, 0.75))
+movies.quant = movies.quant %>% mutate(q1 = tmp$q1, q2 = tmp$q2, q3 = tmp$q3)
+
+words.quant.ls = lapply(words.top$word, function(wd) {
+  movies.tmp = filter(movies.quant, str_detect(Plot, sprintf('\\b%s\\b', wd)))
+  out = movies.tmp %>% summarise(Top25 = sum(Rating >= q3), Bottom25 = sum(Rating <= q1), Count = n()) %>%
+    mutate(Word = wd, log_ratio = log2((Top25 + 0.01) / (Bottom25 + 0.01)) %>% round(2))
+  return(out)
+})
+words.quant = words.quant.ls %>% bind_rows() %>% arrange(desc(log_ratio)) %>% filter(Top25 + Bottom25 > 100)
+p = words.quant %>% filter(row_number() <= 10 | row_number() > n() - 10) %>% arrange(log_ratio) %>%
+  mutate(Word = factor(Word, levels = Word), color = factor(Top25 > Bottom25, levels = c(TRUE, FALSE))) %>%
+  ggplot(aes(Word, log_ratio, fill = color, Top25 = Top25, Bottom25 = Bottom25, Count = Count)) + geom_col() + coord_flip()
+saveRDS(plot_custom(p, legend.pos = 'none', fill = TRUE, palette = 'tableau10'), file = './RData/bar_word.rds')

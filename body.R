@@ -305,7 +305,12 @@ dbBody = dashboardBody(
                 bq('Filming techniques have been evolving over the past century. This leads to the constant shift of popularity among film genres.'),
                 p('Note: Click on a specific legend item to add or remove that genre from the plot. Double click to only look at that genre.'),
                 ## h3('Genres per movie'), hr(), rbokehOutput('g_per_movie'),
-                h3('Genre percentage over the years'), plotlyOutput('g_percent')
+                h3('Genre percentage over the years'), hr(), plotlyOutput('g_percent')
+              ),
+              box(
+                title = 'Frequent Words in Plot Descriptions', width = NULL, status = 'info', solidHeader = TRUE, collapsible = TRUE,
+                bq('Below is a bar chart showing some of the frequent words used in movie plots. The log ratio of this plot is computed by taking the base-2 log ratio of
+                    the number of movies with top 25% ratings over that of movies with bottom 25% ratings.'), plotlyOutput('bar_word')
               )
             )
           )

@@ -41,10 +41,10 @@ scale_colour_Publication <- function(...){
       discrete_scale("colour","Publication",manual_pal(values = rep(c("#386cb0","#fdb462","#7fc97f","#ef3b2c","#662506","#a6cee3","#fb9a99","#984ea3","#ffff33", "#FFA500", "#3cb371", "#1E90FF"), 2)), ...)
 }
 
-plot_custom <- function(p, saveTo = NULL, base_size=10, legend.pos = "right", color = TRUE, fill = FALSE) {
+plot_custom <- function(p, saveTo = NULL, palette = 'tableau20', base_size=10, legend.pos = "right", color = TRUE, fill = FALSE) {
   out = p + theme_Publication(base_size, legend.pos)
-  if(color) out = out + scale_colour_tableau(palette = 'tableau20')
-  if(fill) out = out + scale_fill_tableau(palette = 'tableau20')
+  if(color) out = out + scale_colour_tableau(palette = palette)
+  if(fill) out = out + scale_fill_tableau(palette = palette)
   if(is.null(saveTo)) return(out)
   ggsave(saveTo, out)
   return(out)
@@ -55,15 +55,15 @@ plot_custom <- function(p, saveTo = NULL, base_size=10, legend.pos = "right", co
 ################################################################################
 ## yearly trend
 year_trend = function(dat) {
-  p = ggplot(dat, aes(Year, Ratings)) + geom_line(color = '#386cb0') +
-      geom_point(size = 0.5, color = '#386cb0') 
+  p = ggplot(dat, aes(Year, Ratings, name = Count)) + geom_line(color = '#386cb0') +
+      geom_point(size = 0.5, color = '#386cb0') + geom_smooth(color = 'magenta', size = 0.5, se = FALSE)
       ## ggtitle('Yearly Average Rating')
   plot_custom(p) %>% ggplotly()
 }
 ## boxplot of genres
 box_genre = function(dat) {
-  p = ggplot(dat, aes(Genre, Ratings, color = Genre)) + stat_boxplot(geom = "errorbar", width = 0.8) +
-    geom_boxplot() + ylim(c(0, 100))
+  p = ggplot(dat, aes(Genre, Ratings, color = Genre, name = Count)) +
+    stat_boxplot(geom = "errorbar", width = 0.8) + geom_boxplot() + ylim(c(0, 100))
     ## ggtitle('Ratings by Genre')  
   (plot_custom(p, legend.pos = 'none') + theme(axis.text.x = element_text(angle = 90, hjust = 1))) %>% ggplotly()
 }
